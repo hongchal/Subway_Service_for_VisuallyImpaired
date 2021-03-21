@@ -1,0 +1,44 @@
+#include <SoftwareSerial.h>
+ 
+SoftwareSerial HM10(2,3); // RX, TX 핀번호 순서대로
+ 
+void setup() {
+  Serial.begin(9600);
+  HM10.begin(9600);
+}
+ 
+void loop() {
+  while(HM10.available()){
+    byte data=HM10.read();
+    Serial.write(data);
+  }
+  while(Serial.available()){
+
+    byte data=Serial.read();
+    HM10.write(data);
+  }
+}
+
+/*1. AT+RENEW(모듈 공장 초기화) - 결과 : OK+RENEW
+
+2. AT+RESET(BLE모듈을 리셋) - 결과 : OK+RESET 
+
+3. AT(AT모드 응답 확인) - 결과 : OK
+
+4. AT+MARJ0x1234(Beacon의 Major 값을 16진수 1234로 설정) - 결과 : OK+Set:0x1234)
+
+5. AT+MINO0xFA01(Beacon의 Minor 값을 16진수 FA01로 설정) - 결과 : OK+Set:0xFA01
+
+6. AT+ADVI5(신호 5초마다 송출) - 결과 : OK+Set:5
+
+7. AT+NAMESAMPLE(HM-10 이름을 SAMPLE로 설정) - 결과 : OK+Set:SAMPLE
+
+8. AT+ADTY3(non-connectable 상태(절전)) - 결과 : OK+Set:3
+
+9.AT+IBEA1(HM-10을 Beacon모드로 변경) - 결과 : OK+Set:1
+
+10. AT+DELO2(iBeacon을 broadcast 전용 모드로 세팅) - 결과 : OK+DELO2
+
+11. AT+PWRM0(모듈을 Auto-sleep모드로 세팅) - 결과 : OK+Set:0
+
+12. AT+RESET(모듈 재부팅) - 결과 : OK+RESET */
