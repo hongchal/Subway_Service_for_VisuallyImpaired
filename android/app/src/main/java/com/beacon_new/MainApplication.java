@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import com.facebook.react.PackageList;
 import com.facebook.react.ReactApplication;
+import com.wenkesj.voice.VoicePackage;
 import com.mackentoch.beaconsandroid.BeaconsAndroidPackage;
 import com.mackentoch.beaconsandroid.BeaconsAndroidPackage;
 import com.facebook.react.ReactInstanceManager;

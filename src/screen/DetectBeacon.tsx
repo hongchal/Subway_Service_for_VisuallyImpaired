@@ -4,7 +4,7 @@ import Beacons from 'react-native-beacons-manager';
 import KalmanFilter from 'kalmanjs';
 import styled from 'styled-components/native';
 
-const App = () => {
+const DetectBeacon = () => {
   const MAX = 4;
   const MINORDEFAULT = 64000;
   const dummyDistance = 1000;
@@ -104,8 +104,6 @@ const App = () => {
   );
 };
 
-export default App;
-
 const SafeAreaView = styled.SafeAreaView`
   flex: 1;
   background-color: white;
@@ -123,3 +121,5 @@ const InfoText = styled.Text`
   font-size: 30px;
   font-weight: bold;
 `;
+
+export default DetectBeacon;
