@@ -6,6 +6,7 @@ import {InputStartPoint} from './screen/InputStartPoint';
 import {ShowRoute} from './screen/ShowRoute';
 import DetectBeacone from './screen/DetectBeacone';
 import {STRING} from './assets/string';
+import ShowSubwayLocation from "./screen/ShowSubwayLocation";
 
 export const RootNavigation = () => {
   const Stack = createStackNavigator();
@@ -25,6 +26,7 @@ export const RootNavigation = () => {
                 component={InputStartPoint}
                 options={{}}
               />
+                <Tab.Screen name={STRING.NAVIGATION.SUBWAY_LOCATION} component={ShowSubwayLocation} />
               <Tab.Screen
                 name={STRING.NAVIGATION.DETECT_BEACONE}
                 component={DetectBeacone}

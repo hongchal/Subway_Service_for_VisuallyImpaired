@@ -1,8 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
-import Voice from '@react-native-voice/voice';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {STRING} from '../assets/string';
 import axios from 'axios';
 
 export const ShowRoute = () => {
@@ -12,9 +10,7 @@ export const ShowRoute = () => {
   const API_KEY = 'xUQGbrtq5/4KHQtgcEK2jSdXF7I2SnhpKm6Vfvoayx0'; //'bq4DHENm4M1n96fEetwYdg'; //'xUQGbrtq5/4KHQtgcEK2jSdXF7I2SnhpKm6Vfvoayx0';
 
   useEffect(() => {
-    setData({startCode: route.params.startCode, endCode: route.params.endCode});
-    console.log(API_KEY);
-    console.log(encodeURIComponent(API_KEY));
+    setData({startCode: route.params.startCode, endCode: route.params.endCode});``
   }, []);
 
   const onPressButton = () => {
@@ -24,9 +20,9 @@ export const ShowRoute = () => {
   const fetchRoute = async () => {
     await axios
       .get(
-        `https://api.odsay.com/v1/api/subwayPath?apiKey=${decodeURIComponent(
-          API_KEY,
-        )}&CID=1000&SID=${data.startCode}&EID=${data.endCode}`,
+        `https://api.odsay.com/v1/api/subwayPath?apiKey=${
+          encodeURIComponent(API_KEY)
+        }&CID=1000&SID=${data.startCode}&EID=${data.endCode}`,
       )
       .then((res) => console.log(res));
   };
