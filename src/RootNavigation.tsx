@@ -7,6 +7,7 @@ import {ShowRoute} from './screen/ShowRoute';
 import DetectBeacone from './screen/DetectBeacone';
 import {STRING} from './assets/string';
 import ShowSubwayLocation from "./screen/ShowSubwayLocation";
+import TestRssi from './screen/TestRssi';
 
 export const RootNavigation = () => {
   const Stack = createStackNavigator();
@@ -38,6 +39,13 @@ export const RootNavigation = () => {
         <Stack.Screen
           name={STRING.NAVIGATION.SHOW_ROUTE}
           component={ShowRoute}
+          options={{
+            header: () => null,
+          }}
+        />
+        <Stack.Screen
+          name={'TestRssi'}
+          component={TestRssi}
           options={{
             header: () => null,
           }}

@@ -1,9 +1,45 @@
 ﻿import React, {useEffect, useState} from 'react';
-import {DeviceEventEmitter, View, Text, PermissionsAndroid} from 'react-native';
+import {DeviceEventEmitter, View, Text, PermissionsAndroid, Button} from 'react-native';
 import Beacons from 'react-native-beacons-manager';
 //@ts-ignore
 import KalmanFilter from 'kalmanjs';
 import styled from 'styled-components/native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
+import {useNavigation} from '@react-navigation/native';
+import TestRssi from './TestRssi';
+
+const requestLocationPermission = async () => {
+  try {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      {
+        title: "let's find beacons",
+        message: '서비스 사용을 위해서 사용자의 위치 정보가 필요합니다. 위치 정보 추적을 허용하시겠습니까?',
+        buttonNeutral: '다음에 하겠습니다',
+        buttonNegative: '취소',
+        buttonPositive: '앱 사용중에 허용',
+      },
+    );
+    if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+      console.log('granted');
+    } else {
+      console.log('permission denied');
+    }
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+const RangingBeacon = async () => {
+  try {
+    await Beacons.startRangingBeaconsInRegion(
+      'iBeacon',
+      '74278bda-b644-4520-8f0c-720eaf059935',
+    );
+  } catch (err) {
+    console.log(`Beacons ranging not started, error: ${err}`);
+  }
+};
 
 const DetectBeacone = () => {
   const MAX = 4;
@@ -13,6 +49,8 @@ const DetectBeacone = () => {
   const [nearestDoor, setNearestDoor] = useState<number>(0);
   useEffect(() => {}, [nearestDoor]);
   // const region = { uuid :'iBeacon', identifier : '74278bda-b644-4520-8f0c-720eaf059935'};
+  const navigation = useNavigation();
+
 
   useEffect(() => {
     let kalamanFilterDistance = new Array(MAX);
@@ -38,15 +76,15 @@ const DetectBeacone = () => {
         );
         })
 
-      console.log('kal dis: ',kalamanFilterDistance);
-      minDistance = Math.min.apply(null, kalamanFilterDistance);
-      console.log('min dis: ',minDistance);
+        console.log('kal dis: ',kalamanFilterDistance);
+        minDistance = Math.min.apply(null, kalamanFilterDistance);
+        console.log('min dis: ',minDistance);
 
-      kalamanFilterDistance.forEach((item, index) => {
-        if (item !== undefined) {
-          item === minDistance ? setNearestDoor(index + 1) : null;
-        }
-      })
+        kalamanFilterDistance.forEach((item, index) => {
+          if (item !== undefined) {
+            item === minDistance ? setNearestDoor(index + 1) : null;
+          }
+        })
 
       }
       catch(err)
@@ -58,7 +96,7 @@ const DetectBeacone = () => {
       
     })
 
-    requestLocationPermission(); //.then(() => console.log('permission end'));
+    requestLocationPermission();//.then(() => console.log('permission end'));
 
     return (
       () => {
@@ -73,38 +111,6 @@ const DetectBeacone = () => {
 
   }, []);
 
-  const requestLocationPermission = async () => {
-    try {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-        {
-          title: "let's find beacons",
-          message: '서비스 사용을 위해서 사용자의 위치 정보가 필요합니다. 위치 정보 추적을 허용하시겠습니까?',
-          buttonNeutral: '다음에 하겠습니다',
-          buttonNegative: '취소',
-          buttonPositive: '앱 사용중에 허용',
-        },
-      );
-      if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('granted');
-      } else {
-        console.log('permission denied');
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const RangingBeacon = async () => {
-    try {
-      await Beacons.startRangingBeaconsInRegion(
-        'iBeacon',
-        '74278bda-b644-4520-8f0c-720eaf059935',
-      );
-    } catch (err) {
-      console.log(`Beacons ranging not started, error: ${err}`);
-    }
-  };
 
   Beacons.detectIBeacons();
   RangingBeacon();
@@ -113,6 +119,9 @@ const DetectBeacone = () => {
       <SafeAreaView>
         <InfoWrapper>
           <InfoText>{nearestDoor}</InfoText>
+          <TouchableOpacity onPress={()=>{ DeviceEventEmitter.removeAllListeners(), navigation.navigate('TestRssi')}}>
+            <InfoText>go test</InfoText>
+          </TouchableOpacity>
         </InfoWrapper>
       </SafeAreaView>
     </>
