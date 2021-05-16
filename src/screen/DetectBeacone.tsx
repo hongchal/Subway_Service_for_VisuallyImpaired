@@ -4,7 +4,7 @@ import Beacons from 'react-native-beacons-manager';
 import KalmanFilter from 'kalmanjs';
 import styled from 'styled-components/native';
 
-const DetectBeacon = () => {
+const DetectBeacone = () => {
   const MAX = 4;
   const MINORDEFAULT = 64000;
   const dummyDistance = 1000;
@@ -27,16 +27,16 @@ const DetectBeacon = () => {
 
       //use Kalman Filter for accuracy
       Beacons.map((beacon, index) => {
-        console.log(beacon.minor, beacon.distance);
+        //console.log(beacon.minor, beacon.distance);
         let beaconIndex = beacon.minor - MINORDEFAULT;
         kalamanFilterDistance[beaconIndex] = parseFloat(
           beaconList[beaconIndex].filter(beacon.distance).toFixed(2),
         );
       });
 
-      console.log(kalamanFilterDistance);
+      //console.log(kalamanFilterDistance);
       minDistance = Math.min.apply(null, kalamanFilterDistance);
-      console.log(minDistance);
+      //console.log(minDistance);
 
       kalamanFilterDistance.forEach((item, index) => {
         if (item !== undefined) {
@@ -46,10 +46,10 @@ const DetectBeacon = () => {
       });
     });
 
-    requestLocationPermission().then(() => console.log('permission end'));
+    requestLocationPermission(); //.then(() => console.log('permission end'));
 
     return () => {
-      DeviceEventEmitter.removeListener('beaconsDidRange');
+      DeviceEventEmitter.removeAllListeners();
     };
   }, []);
 
@@ -84,14 +84,14 @@ const DetectBeacon = () => {
       // await Beacons.startRangingBeaconsInRegion('iBeacon');
       // await Beacons.startMonitoringForRegion({ identifier:'iBeacons', minor: 4460 ,major: 64001});
       //await Beacons.startRangingBeaconsInRegion();
-      console.log('Beacons ranging started successfully!');
+      //console.log('Beacons ranging started successfully!');
     } catch (err) {
       console.log(`Beacons ranging not started, error: ${err}`);
     }
   };
 
   Beacons.detectIBeacons();
-  RangingBeacon().then(console.log('start ranging beacons'));
+  RangingBeacon(); //.then(console.log('start ranging beacons'));
 
   return (
     <>
@@ -122,4 +122,4 @@ const InfoText = styled.Text`
   font-weight: bold;
 `;
 
-export default DetectBeacon;
+export default DetectBeacone;

@@ -4,6 +4,8 @@ import Voice from '@react-native-voice/voice';
 import {useNavigation} from '@react-navigation/native';
 import {STRING} from '../assets/string';
 import axios from 'axios';
+import {useRecoilState} from 'recoil';
+import {subwayLineState} from '../recoilState';
 
 interface dataPorps {
   isRecord: boolean;
@@ -26,6 +28,8 @@ export const InputStartPoint = () => {
     focused: false,
     code: '',
   });
+
+  const [subwayLine, setSubwayLine] = useRecoilState(subwayLineState);
 
   const buttonLabelStartPoint = startPoint.isRecord ? 'Stop' : 'Start';
   const buttonLabelEndPoint = endPoint.isRecord ? 'Stop' : 'Start';
@@ -50,7 +54,7 @@ export const InputStartPoint = () => {
     console.log('onSpeechEnd');
     Voice.destroy();
   };
-  const _onSpeechResultsStart = event => {
+  const _onSpeechResultsStart = (event) => {
     console.log('onSpeechResults');
     console.log(event);
     const res: string = event.value[0];
@@ -63,7 +67,7 @@ export const InputStartPoint = () => {
       code: '',
     });
   };
-  const _onSpeechResultsEnd = event => {
+  const _onSpeechResultsEnd = (event) => {
     console.log('onSpeechResults');
     const res: string = event.value[0];
     res.trim();
@@ -75,7 +79,7 @@ export const InputStartPoint = () => {
       code: '',
     });
   };
-  const _onSpeechError = event => {
+  const _onSpeechError = (event) => {
     console.log('_onSpeechError');
     console.log(event.error);
   };
@@ -104,25 +108,26 @@ export const InputStartPoint = () => {
       .get(
         `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${startPoint.title}/`,
       )
-      .then(res => {
-        console.log(res.data.SearchInfoBySubwayNameService.row[0].FR_CODE);
+      .then((res) => {
+        setSubwayLine(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
+        console.log(res.data.SearchInfoBySubwayNameService.row[0]);
 
         startPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
         console.log(startPoint.code);
         //startPoint.code = res;
       })
-      .catch(e => console.error(e));
+      .catch((e) => console.error(e));
 
     await axios
       .get(
         `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${endPoint.title}/`,
       )
-      .then(res => {
-        console.log(res.data.SearchInfoBySubwayNameService.row[0].FR_CODE);
+      .then((res) => {
+        console.log(res.data.SearchInfoBySubwayNameService.row[0]);
         endPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
         console.log(endPoint.code);
       })
-      .catch(e => console.error(e));
+      .catch((e) => console.error(e));
 
     navigation.navigate(STRING.NAVIGATION.SHOW_ROUTE, {
       startCode: startPoint.code,
