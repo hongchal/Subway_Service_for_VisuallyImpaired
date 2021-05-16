@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react';
+ï»¿import React, {useEffect, useState} from 'react';
 import {DeviceEventEmitter, View, Text, PermissionsAndroid} from 'react-native';
 import Beacons from 'react-native-beacons-manager';
+//@ts-ignore
 import KalmanFilter from 'kalmanjs';
 import styled from 'styled-components/native';
 
@@ -78,10 +79,10 @@ const DetectBeacone = () => {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
           title: "let's find beacons",
-          message: '¼­ºñ½º »ç¿ëÀ» À§ÇØ¼­ »ç¿ëÀÚÀÇ À§Ä¡ Á¤º¸°¡ ÇÊ¿äÇÕ´Ï´Ù. À§Ä¡ Á¤º¸ ÃßÀûÀ» Çã¿ëÇÏ½Ã°Ú½À´Ï±î?',
-          buttonNeutral: '´ÙÀ½¿¡ ÇÏ°Ú½À´Ï´Ù',
-          buttonNegative: 'Ãë¼Ò',
-          buttonPositive: '¾Û »ç¿ëÁß¿¡ Çã¿ë',
+          message: 'ì„œë¹„ìŠ¤ ì‚¬ìš©ì„ ìœ„í•´ì„œ ì‚¬ìš©ìžì˜ ìœ„ì¹˜ ì •ë³´ê°€ í•„ìš”í•©ë‹ˆë‹¤. ìœ„ì¹˜ ì •ë³´ ì¶”ì ì„ í—ˆìš©í•˜ì‹œê² ìŠµë‹ˆê¹Œ?',
+          buttonNeutral: 'ë‹¤ìŒì— í•˜ê² ìŠµë‹ˆë‹¤',
+          buttonNegative: 'ì·¨ì†Œ',
+          buttonPositive: 'ì•± ì‚¬ìš©ì¤‘ì— í—ˆìš©',
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -100,24 +101,10 @@ const DetectBeacone = () => {
         'iBeacon',
         '74278bda-b644-4520-8f0c-720eaf059935',
       );
-<<<<<<< HEAD:src/screen/DetectBeacon.tsx
-=======
-      // await Beacons.startRangingBeaconsInRegion('iBeacon');
-      // await Beacons.startMonitoringForRegion({ identifier:'iBeacons', minor: 4460 ,major: 64001});
-      //await Beacons.startRangingBeaconsInRegion();
-      //console.log('Beacons ranging started successfully!');
->>>>>>> 1f6610342dfa4b74514b1ad4e5847294307d4b60:src/screen/DetectBeacone.tsx
     } catch (err) {
       console.log(`Beacons ranging not started, error: ${err}`);
     }
   };
-
-<<<<<<< HEAD:src/screen/DetectBeacon.tsx
-  
-=======
-  Beacons.detectIBeacons();
-  RangingBeacon(); //.then(console.log('start ranging beacons'));
->>>>>>> 1f6610342dfa4b74514b1ad4e5847294307d4b60:src/screen/DetectBeacone.tsx
 
   Beacons.detectIBeacons();
   RangingBeacon();
