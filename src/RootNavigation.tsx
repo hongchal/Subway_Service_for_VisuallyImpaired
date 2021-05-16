@@ -4,8 +4,9 @@ import {createStackNavigator} from '@react-navigation/stack';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {InputStartPoint} from './screen/InputStartPoint';
 import {ShowRoute} from './screen/ShowRoute';
-import DetectBeacon from './screen/DetectBeacon';
+import DetectBeacone from './screen/DetectBeacone';
 import {STRING} from './assets/string';
+import ShowSubwayLocation from "./screen/ShowSubwayLocation";
 
 export const RootNavigation = () => {
   const Stack = createStackNavigator();
@@ -13,13 +14,6 @@ export const RootNavigation = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen
-          name={STRING.NAVIGATION.SHOW_ROUTE}
-          component={ShowRoute}
-          options={{
-            header: () => null,
-          }}
-        />
         <Stack.Screen
           name={' '}
           options={{
@@ -32,14 +26,22 @@ export const RootNavigation = () => {
                 component={InputStartPoint}
                 options={{}}
               />
+                <Tab.Screen name={STRING.NAVIGATION.SUBWAY_LOCATION} component={ShowSubwayLocation} />
               <Tab.Screen
                 name={STRING.NAVIGATION.DETECT_BEACONE}
-                component={DetectBeacon}
+                component={DetectBeacone}
                 options={{}}
               />
             </Tab.Navigator>
           )}
         </Stack.Screen>
+        <Stack.Screen
+          name={STRING.NAVIGATION.SHOW_ROUTE}
+          component={ShowRoute}
+          options={{
+            header: () => null,
+          }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
