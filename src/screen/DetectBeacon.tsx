@@ -8,10 +8,10 @@ const DetectBeacon = () => {
   const MAX = 4;
   const MINORDEFAULT = 64000;
   const dummyDistance = 1000;
-  let minDistance;
-  // let nearestDoor = 5;
-  const [nearestDoor, setNearestDoor] = useState(null);
+  let minDistance: number;
+  const [nearestDoor, setNearestDoor] = useState<number>(0);
   useEffect(() => {}, [nearestDoor]);
+  // const region = { uuid :'iBeacon', identifier : '74278bda-b644-4520-8f0c-720eaf059935'};
 
   useEffect(() => {
     let kalamanFilterDistance = new Array(MAX);
@@ -23,34 +23,51 @@ const DetectBeacon = () => {
 
     // Print a log of the detected iBeacons (1 per second)
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
-      const Beacons = data.beacons;
-
-      //use Kalman Filter for accuracy
-      Beacons.map((beacon, index) => {
-        console.log(beacon.minor, beacon.distance);
-        let beaconIndex = beacon.minor - MINORDEFAULT;
-        kalamanFilterDistance[beaconIndex] = parseFloat(
-          beaconList[beaconIndex].filter(beacon.distance).toFixed(2),
+      try{     
+        const Beacons = data.beacons;
+        console.log(Beacons)
+        // use Kalman Filter for accuracy
+        Beacons.map((beacon: any) => {
+          console.log(beacon.minor, beacon.distance);
+          let beaconIndex = beacon.minor - MINORDEFAULT;
+          console.log(beaconIndex)
+          kalamanFilterDistance[beaconIndex] = parseFloat(
+          beaconList[beaconIndex].filter(beacon.distance).toFixed(2)
         );
-      });
+        })
 
-      console.log(kalamanFilterDistance);
+      console.log('kal dis: ',kalamanFilterDistance);
       minDistance = Math.min.apply(null, kalamanFilterDistance);
-      console.log(minDistance);
+      console.log('min dis: ',minDistance);
 
       kalamanFilterDistance.forEach((item, index) => {
         if (item !== undefined) {
-          // item === minDistance ? (nearestDoor = index + 1) : null;
           item === minDistance ? setNearestDoor(index + 1) : null;
         }
-      });
-    });
+      })
+
+      }
+      catch(err)
+      {
+        console.log('-----------------------------------------------------------------------')
+        console.log(err);
+        console.log('-----------------------------------------------------------------------')
+      }
+      
+    })
 
     requestLocationPermission().then(() => console.log('permission end'));
 
-    return () => {
-      DeviceEventEmitter.removeListener('beaconsDidRange');
-    };
+    return (
+      () => {
+        Beacons
+        .stopRangingBeaconsInRegion( 'iBeacon',
+        '74278bda-b644-4520-8f0c-720eaf059935',)
+        .then(() => console.log('Beacons ranging stopped succesfully'))
+        .catch(error => console.log(`Beacons ranging not stopped, error: ${error}`));
+        DeviceEventEmitter.removeAllListeners();
+      }
+    )
   }, []);
 
   const requestLocationPermission = async () => {
@@ -59,10 +76,10 @@ const DetectBeacon = () => {
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
           title: "let's find beacons",
-          message: 'if you want start this project choose ok',
-          buttonNeutral: 'Ask Me Later',
-          buttonNegative: 'Cancel',
-          buttonPositive: 'OK',
+          message: '서비스 사용을 위해서 사용자의 위치 정보가 필요합니다. 위치 정보 추적을 허용하시겠습니까?',
+          buttonNeutral: '다음에 하겠습니다',
+          buttonNegative: '취소',
+          buttonPositive: '앱 사용중에 허용',
         },
       );
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -81,23 +98,20 @@ const DetectBeacon = () => {
         'iBeacon',
         '74278bda-b644-4520-8f0c-720eaf059935',
       );
-      // await Beacons.startRangingBeaconsInRegion('iBeacon');
-      // await Beacons.startMonitoringForRegion({ identifier:'iBeacons', minor: 4460 ,major: 64001});
-      //await Beacons.startRangingBeaconsInRegion();
-      console.log('Beacons ranging started successfully!');
     } catch (err) {
       console.log(`Beacons ranging not started, error: ${err}`);
     }
   };
 
-  Beacons.detectIBeacons();
-  RangingBeacon().then(console.log('start ranging beacons'));
+  
 
+  Beacons.detectIBeacons();
+  RangingBeacon();
   return (
     <>
       <SafeAreaView>
         <InfoWrapper>
-          <InfoText>1-{nearestDoor}</InfoText>
+          <InfoText>{nearestDoor}</InfoText>
         </InfoWrapper>
       </SafeAreaView>
     </>
