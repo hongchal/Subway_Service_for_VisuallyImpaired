@@ -12,7 +12,7 @@ const ShowSubwayLocationUp = () => {
   const startPoint = useRoute().params.startPoint;
   const endPoint = useRoute().params.endPoint;
   const [endPointIndex, setEndPointIndex] = useState<number>(0);
-  const [ridingTrainNo, setRidingTrainNo] = useState<string>('7153');
+  const [ridingTrainNo, setRidingTrainNo] = useState<string>('7182');
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [upLine, setUpLine] = useState<Array<any>>([]);
   const [subwayStations, setSubwayStations] = useState<Array<any>>([]);
@@ -86,7 +86,6 @@ const ShowSubwayLocationUp = () => {
             if (upTrainNo === ridingTrainNo) {
               if (endPointIndex - index === 0 || endPointIndex - index === 1) {
                 Vibration.vibrate();
-                console.log('vv');
               }
             }
             return (

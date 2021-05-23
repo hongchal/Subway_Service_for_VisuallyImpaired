@@ -12,7 +12,7 @@ const ShowSubwayLocationDown = () => {
   const startPoint = useRoute().params.startPoint;
   const endPoint = useRoute().params.endPoint;
   const [endPointIndex, setEndPointIndex] = useState<number>(0);
-  const [ridingTrainNo, setRidingTrainNo] = useState<string>('7175');
+  const [ridingTrainNo, setRidingTrainNo] = useState<string>('7177');
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [downLine, setDownLine] = useState<Array<any>>([]);
   const [subwayStations, setSubwayStations] = useState<Array<any>>([]);
@@ -40,7 +40,7 @@ const ShowSubwayLocationDown = () => {
       )
       .then((res) => {
         const dnLineRes = res.data.realtimePositionList.filter(
-          (data) => data.updnLine === 1,
+          (data) => data.updnLine == 1,
         );
         setDownLine(dnLineRes);
       })
@@ -86,7 +86,6 @@ const ShowSubwayLocationDown = () => {
             if (downTrainNo === ridingTrainNo) {
               if (endPointIndex - index === 0 || endPointIndex - index === 1) {
                 Vibration.vibrate();
-                console.log('vv');
               }
             }
             return (

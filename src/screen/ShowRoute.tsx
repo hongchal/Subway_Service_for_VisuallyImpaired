@@ -7,24 +7,26 @@ export const ShowRoute = () => {
   const [data, setData] = useState({startCode: '', endCode: ''});
   const navigation = useNavigation();
   const route = useRoute();
-  const API_KEY = 'xUQGbrtq5/4KHQtgcEK2jSdXF7I2SnhpKm6Vfvoayx0'; //'bq4DHENm4M1n96fEetwYdg'; //'xUQGbrtq5/4KHQtgcEK2jSdXF7I2SnhpKm6Vfvoayx0';
+  const API_KEY = 'xUQGbrtq5/4KHQtgcEK2jSdXF7I2SnhpKm6Vfvoayx0';
 
   useEffect(() => {
-    setData({startCode: route.params.startCode, endCode: route.params.endCode});``
+    setData({startCode: route.params.startCode, endCode: route.params.endCode});
+    ('');
   }, []);
 
   const onPressButton = () => {
+    console.log(encodeURIComponent(API_KEY));
     fetchRoute();
   };
 
   const fetchRoute = async () => {
     await axios
       .get(
-        `https://api.odsay.com/v1/api/subwayPath?apiKey=${
-          encodeURIComponent(API_KEY)
-        }&CID=1000&SID=${data.startCode}&EID=${data.endCode}`,
+        `https://api.odsay.com/v1/api/subwayPath?apiKey=${encodeURIComponent(
+          API_KEY,
+        )}&CID=1000&SID=${data.startCode}&EID=${data.endCode}`,
       )
-      .then((res) => console.log(res));
+      .then((res) => console.log(res.data));
   };
 
   return (

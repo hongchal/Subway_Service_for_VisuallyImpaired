@@ -14,7 +14,7 @@ const ShowSubwayLocation = () => {
         onPress={() =>
           navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION_UP, {
             startPoint: '남성',
-            endPoint: '대림',
+            endPoint: '학동',
           })
         }>
         <ButtonWrapper>
