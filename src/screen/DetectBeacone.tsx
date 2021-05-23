@@ -6,7 +6,12 @@ import KalmanFilter from 'kalmanjs';
 import styled from 'styled-components/native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
+import Tts from 'react-native-tts';
 import TestRssi from './TestRssi';
+
+const MAX = 8;
+const MINORDEFAULT = 64000;
+const dummyDistance = 1000;
 
 const requestLocationPermission = async () => {
   try {
@@ -41,18 +46,36 @@ const RangingBeacon = async () => {
   }
 };
 
+const speakClosestDoor = (closestDoor : number) => {
+  console.log(closestDoor)
+  if(closestDoor === dummyDistance){
+    Tts.speak('가까운 스크린 도어가 탐지되지 않습니다.')
+  }else{
+    const section = (closestDoor / 4).toFixed();
+    const door = (closestDoor % 5);
+    const sectionString = section.toString();
+    const doorString = door.toString();
+    console.log(sectionString + '-' + doorString );
+    const closestDoorString = closestDoor.toString();
+    Tts.speak(sectionString + '다시' + doorString + '가 가장 가깝습니다');
+  }
+}
+
 const DetectBeacone = () => {
-  const MAX = 4;
-  const MINORDEFAULT = 64000;
-  const dummyDistance = 1000;
   let minDistance: number;
   const [nearestDoor, setNearestDoor] = useState<number>(0);
-  useEffect(() => {}, [nearestDoor]);
   // const region = { uuid :'iBeacon', identifier : '74278bda-b644-4520-8f0c-720eaf059935'};
   const navigation = useNavigation();
+  
+  const ttsSet = () => {
+    Tts.setDefaultLanguage('ko-KR');
+  }
 
+  useEffect(() => {}, [nearestDoor]);
 
   useEffect(() => {
+    ttsSet();
+
     let kalamanFilterDistance = new Array(MAX);
     let beaconList = new Array(MAX);
     for (let i = 0; i < MAX; i++) {
@@ -67,12 +90,11 @@ const DetectBeacone = () => {
         console.log(Beacons)
         // use Kalman Filter for accuracy
         Beacons.map((beacon: any) => {
-          console.log(beacon.minor, beacon.distance);
+          // console.log(beacon.minor, beacon.distance);
           let beaconIndex = beacon.minor - MINORDEFAULT;
-          console.log(beaconIndex)
+          // console.log(beaconIndex)
           kalamanFilterDistance[beaconIndex] = parseFloat(
           beaconList[beaconIndex].filter(beacon.distance).toFixed(2)
-
         );
         })
 
@@ -119,7 +141,7 @@ const DetectBeacone = () => {
       <SafeAreaView>
         <InfoWrapper>
           <InfoText>{nearestDoor}</InfoText>
-          <TouchableOpacity onPress={()=>{ DeviceEventEmitter.removeAllListeners(), navigation.navigate('TestRssi')}}>
+          <TouchableOpacity onPress={()=>speakClosestDoor(nearestDoor)}>
             <InfoText>go test</InfoText>
           </TouchableOpacity>
         </InfoWrapper>
