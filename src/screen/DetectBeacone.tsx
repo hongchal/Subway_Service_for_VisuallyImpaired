@@ -8,6 +8,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 import Tts from 'react-native-tts';
 import TestRssi from './TestRssi';
+import { STRING } from '../assets/string';
 
 const MAX = 8;
 const MINORDEFAULT = 64000;
@@ -87,7 +88,7 @@ const DetectBeacone = () => {
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
       try{     
         const Beacons = data.beacons;
-        console.log(Beacons)
+        // console.log(Beacons)
         // use Kalman Filter for accuracy
         Beacons.map((beacon: any) => {
           // console.log(beacon.minor, beacon.distance);
@@ -98,9 +99,9 @@ const DetectBeacone = () => {
         );
         })
 
-        console.log('kal dis: ',kalamanFilterDistance);
+        // console.log('kal dis: ',kalamanFilterDistance);
         minDistance = Math.min.apply(null, kalamanFilterDistance);
-        console.log('min dis: ',minDistance);
+        // console.log('min dis: ',minDistance);
 
         kalamanFilterDistance.forEach((item, index) => {
           if (item !== undefined) {
@@ -142,6 +143,9 @@ const DetectBeacone = () => {
         <InfoWrapper>
           <InfoText>{nearestDoor}</InfoText>
           <TouchableOpacity onPress={()=>speakClosestDoor(nearestDoor)}>
+            <InfoText>get info</InfoText>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=>navigation.navigate(STRING.NAVIGATION.TEST_BLE_DATA)}>
             <InfoText>go test</InfoText>
           </TouchableOpacity>
         </InfoWrapper>

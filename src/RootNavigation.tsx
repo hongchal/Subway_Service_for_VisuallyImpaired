@@ -44,7 +44,7 @@ export const RootNavigation = () => {
           }}
         />
         <Stack.Screen
-          name={'TestRssi'}
+          name={STRING.NAVIGATION.TEST_BLE_DATA}
           component={TestRssi}
           options={{
             header: () => null,

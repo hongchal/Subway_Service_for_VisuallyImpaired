@@ -4,5 +4,6 @@ export const STRING = {
     SHOW_ROUTE: '길찾기',
     SUBWAY_LOCATION : '지하철 위치',
     DETECT_BEACONE: '비콘 탐지',
+    TEST_BLE_DATA: '블루투스 테스트',
   },
 };
