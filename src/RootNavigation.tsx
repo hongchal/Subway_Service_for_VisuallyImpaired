@@ -6,6 +6,8 @@ import {InputStartPoint} from './screen/InputStartPoint';
 import {ShowRoute} from './screen/ShowRoute';
 import DetectBeacone from './screen/DetectBeacone';
 import {STRING} from './assets/string';
+import ShowSubwayLocation from "./screen/ShowSubwayLocation";
+import TestRssi from './screen/TestRssi';
 import ShowSubwayLocationUp from './screen/ShowSubwayLocationUp';
 import ShowSubwayLocationDown from './screen/ShowSubwayLocationDown';
 import ShowSubwayLocation from './screen/ShowSubwayLocation';
@@ -63,6 +65,13 @@ export const RootNavigation = () => {
         <Stack.Screen
           name={STRING.NAVIGATION.SHOW_ROUTE}
           component={ShowRoute}
+          options={{
+            header: () => null,
+          }}
+        />
+        <Stack.Screen
+          name={STRING.NAVIGATION.TEST_BLE_DATA}
+          component={TestRssi}
           options={{
             header: () => null,
           }}
