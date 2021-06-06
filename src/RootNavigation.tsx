@@ -6,7 +6,6 @@ import {InputStartPoint} from './screen/InputStartPoint';
 import {ShowRoute} from './screen/ShowRoute';
 import DetectBeacone from './screen/DetectBeacone';
 import {STRING} from './assets/string';
-import ShowSubwayLocation from "./screen/ShowSubwayLocation";
 import TestRssi from './screen/TestRssi';
 import ShowSubwayLocationUp from './screen/ShowSubwayLocationUp';
 import ShowSubwayLocationDown from './screen/ShowSubwayLocationDown';

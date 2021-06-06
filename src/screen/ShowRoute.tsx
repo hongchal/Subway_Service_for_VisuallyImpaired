@@ -5,6 +5,7 @@ import axios from 'axios';
 import STATION from '../assets/stationCoordinate';
 import {dataProps} from './InputStartPoint';
 import {Alert} from 'react-native';
+import Tts from 'react-native-tts';
 
 enum coordinateIndex {
   Y,
@@ -41,6 +42,10 @@ export const ShowRoute = () => {
   useEffect(() => {
     getData();
   }, []);
+
+  const ttsSet = () => {
+    Tts.setDefaultLanguage('ko-KR');
+  };
 
   const fetchRoute = async () => {
     await axios
@@ -92,11 +97,15 @@ export const ShowRoute = () => {
   };
 
   const getData = async () => {
+    await ttsSet();
     await setData({
       startPoint: route.params.startPoint,
       endPoint: route.params.endPoint,
     });
     await fetchRoute();
+    Tts.speak(
+      `출발지는 ${route.params.startPoint.title}역, 도착지는 ${route.params.endPoint.title}역 입니다.`,
+    );
   };
 
   const onPressFunction = async () => {
@@ -107,6 +116,7 @@ export const ShowRoute = () => {
       str += data + (index !== res.length - 1 ? ' → ' : '');
     });
     Alert.alert('최소 환승', str);
+    Tts.speak('최소 환승역은' + str + '입니다.');
   };
 
   return (

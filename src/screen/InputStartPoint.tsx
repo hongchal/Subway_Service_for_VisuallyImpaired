@@ -7,6 +7,8 @@ import axios from 'axios';
 import {useRecoilState} from 'recoil';
 import {subwayLineState} from '../recoilState';
 import {Alert} from 'react-native';
+import Tts from 'react-native-tts';
+import {start} from 'react-native-ble-manager';
 
 export interface dataProps {
   isRecord: boolean;
@@ -29,6 +31,9 @@ export const InputStartPoint = () => {
     focused: false,
     code: '',
   });
+
+  const [isEnteredStart, setIsEnteredStart] = useState<boolean>(false);
+  const [isEnteredEnd, setIsEnteredEnd] = useState<boolean>(false);
 
   const [subwayLine, setSubwayLine] = useRecoilState(subwayLineState);
 
@@ -54,6 +59,11 @@ export const InputStartPoint = () => {
   const _onSpeechEnd = () => {
     console.log('onSpeechEnd');
     Voice.destroy();
+    if (startPoint.isRecord && !endPoint.isRecord) {
+      setIsEnteredStart(true);
+    } else if (startPoint.isRecord && endPoint.isRecord) {
+      setIsEnteredEnd(true);
+    }
   };
   const _onSpeechResultsStart = (event) => {
     console.log('onSpeechResults');
@@ -105,7 +115,6 @@ export const InputStartPoint = () => {
   };
 
   const showStationInfo = async () => {
-    console.log(startPoint, endPoint);
     await axios
       .get(
         `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${startPoint.title}/`,
@@ -155,6 +164,45 @@ export const InputStartPoint = () => {
         endCode: endPoint.title,
       });
   }, [startPoint.title, endPoint.title]);
+
+  const ttsSet = () => {
+    Tts.setDefaultLanguage('ko-KR');
+  };
+
+  useEffect(() => {
+    ttsSet();
+
+    inputStartPoint();
+  }, []);
+
+  useEffect(() => {
+    if (isEnteredStart) {
+      inputEndPoint();
+    }
+  }, [isEnteredStart]);
+
+  useEffect(() => {
+    if (isEnteredEnd && isEnteredStart) {
+      showStationInfo();
+    }
+  }, [isEnteredEnd, isEnteredStart]);
+
+  const inputStartPoint = async () => {
+    await Tts.speak('출발지를 입력해 주세요.');
+    setTimeout(async () => {
+      startPoint.focused = true;
+      await _onRecordVoiceStartPoint();
+    }, 3000);
+  };
+
+  const inputEndPoint = async () => {
+    await Tts.speak('도착지를 입력해 주세요.');
+    setTimeout(async () => {
+      endPoint.focused = true;
+      await _onRecordVoiceEndPoint();
+    }, 3000);
+  };
+
   return (
     <>
       <Container>
