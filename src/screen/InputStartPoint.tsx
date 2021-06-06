@@ -6,8 +6,9 @@ import {STRING} from '../assets/string';
 import axios from 'axios';
 import {useRecoilState} from 'recoil';
 import {subwayLineState} from '../recoilState';
+import {Alert} from 'react-native';
 
-interface dataPorps {
+export interface dataProps {
   isRecord: boolean;
   title: string;
   focused: boolean;
@@ -15,14 +16,14 @@ interface dataPorps {
 }
 
 export const InputStartPoint = () => {
-  const [startPoint, setStartPoint] = useState<dataPorps>({
+  const [startPoint, setStartPoint] = useState<dataProps>({
     isRecord: false,
     title: '',
     focused: false,
     code: '',
   });
 
-  const [endPoint, setEndPoint] = useState<dataPorps>({
+  const [endPoint, setEndPoint] = useState<dataProps>({
     isRecord: false,
     title: '',
     focused: false,
@@ -104,6 +105,7 @@ export const InputStartPoint = () => {
   };
 
   const showStationInfo = async () => {
+    console.log(startPoint, endPoint);
     await axios
       .get(
         `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${startPoint.title}/`,
@@ -116,7 +118,7 @@ export const InputStartPoint = () => {
         console.log(startPoint.code);
         //startPoint.code = res;
       })
-      .catch((e) => console.error(e));
+      .catch((e) => Alert.alert('출발지 입력 오류'));
 
     await axios
       .get(
@@ -127,11 +129,11 @@ export const InputStartPoint = () => {
         endPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
         console.log(endPoint.code);
       })
-      .catch((e) => console.error(e));
+      .catch((e) => Alert.alert('목적지 입력 오류'));
 
     navigation.navigate(STRING.NAVIGATION.SHOW_ROUTE, {
-      startCode: startPoint.code,
-      endCode: endPoint.code,
+      startPoint: startPoint,
+      endPoint: endPoint,
     });
   };
 
@@ -149,10 +151,10 @@ export const InputStartPoint = () => {
     startPoint.code != '' &&
       endPoint.code != '' &&
       navigation.navigate(STRING.NAVIGATION.SHOW_ROUTE, {
-        startCode: startPoint.code,
-        endCode: endPoint.code,
+        startCode: startPoint.title,
+        endCode: endPoint.title,
       });
-  }, [startPoint.code, endPoint.code]);
+  }, [startPoint.title, endPoint.title]);
   return (
     <>
       <Container>

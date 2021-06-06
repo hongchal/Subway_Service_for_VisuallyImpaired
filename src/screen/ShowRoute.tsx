@@ -2,42 +2,127 @@ import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
+import STATION from '../assets/stationCoordinate';
+import {dataProps} from './InputStartPoint';
+import {Alert} from 'react-native';
+
+enum coordinateIndex {
+  Y,
+  X,
+}
+
+interface PathType {
+  fid: Array<string>;
+  fname: Array<string>; //시작역 이름
+  fx: Array<string>;
+  fy: Array<string>;
+  railLinkList: Array<Array<Object>>;
+  routeNm: Array<string>;
+  tid: Array<string>;
+  tname: Array<string>; // 도착역 이름
+  tx: Array<string>;
+  ty: Array<string>;
+}
 
 export const ShowRoute = () => {
-  const [data, setData] = useState({startCode: '', endCode: ''});
+  const [data, setData] = useState<{
+    startPoint: dataProps;
+    endPoint: dataProps;
+  }>({startPoint: {}, endPoint: {}});
   const navigation = useNavigation();
   const route = useRoute();
-  const API_KEY = 'xUQGbrtq5/4KHQtgcEK2jSdXF7I2SnhpKm6Vfvoayx0';
+  const API_KEY =
+    'LxYoKzvAMQN8l6UBprXuyvvvCi9uunUiv9i3fJGwNMcgMoRq%2BTKFCnSpBNlJBKTmhpRT01Q%2F1KntzS%2FkIXTqvA%3D%3D';
+
+  const [routes, setRoutes] = useState<Array<any>>([]);
+  const [bestRoute, setBestRoute] = useState<Array<string>>([]);
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   useEffect(() => {
-    setData({startCode: route.params.startCode, endCode: route.params.endCode});
-    ('');
+    getData();
   }, []);
-
-  const onPressButton = () => {
-    console.log(encodeURIComponent(API_KEY));
-    fetchRoute();
-  };
 
   const fetchRoute = async () => {
     await axios
       .get(
-        `https://api.odsay.com/v1/api/subwayPath?apiKey=${encodeURIComponent(
-          API_KEY,
-        )}&CID=1000&SID=${data.startCode}&EID=${data.endCode}`,
+        `http://ws.bus.go.kr/api/rest/pathinfo/getPathInfoBySubway?serviceKey=${API_KEY}&startX=${String(
+          STATION.DATA[route.params.startPoint.title][coordinateIndex.X],
+        )}&startY=${String(
+          STATION.DATA[route.params.startPoint.title][coordinateIndex.Y],
+        )}&endX=${String(
+          STATION.DATA[route.params.endPoint.title][coordinateIndex.X],
+        )}&endY=${String(
+          STATION.DATA[route.params.endPoint.title][coordinateIndex.Y],
+        )}`,
       )
-      .then((res) => console.log(res.data));
+      .then((res) => {
+        var parseString = require('react-native-xml2js').parseString;
+        var xml = res.data;
+        parseString(xml, function (err: any, result: any) {
+          const parsed = JSON.parse(JSON.stringify(result));
+          const msgBody = parsed.ServiceResult.msgBody;
+          msgBody.map((item: any) => {
+            setRoutes(item.itemList);
+          });
+        });
+      });
+  };
+
+  const processingRoute = () => {
+    const arr: Array<Array<string>> = [];
+    routes.map((route) => {
+      const way: Array<string> = [];
+      route.pathList.map((path: PathType) => {
+        path.fname.map((name) => {
+          way.push(name.replace('역', ''));
+        });
+        path.tname.map((name) => {
+          way.push(name.replace('역', ''));
+        });
+      });
+      const uniqueWay = way.filter((item, index) => {
+        return way.indexOf(item) === index;
+      });
+      arr.push(uniqueWay);
+    });
+    const res = arr.reduce(function (minI, el, index, arr) {
+      return el.length < arr[minI].length ? index : minI;
+    }, 0);
+    return arr[res];
+  };
+
+  const getData = async () => {
+    await setData({
+      startPoint: route.params.startPoint,
+      endPoint: route.params.endPoint,
+    });
+    await fetchRoute();
+  };
+
+  const onPressFunction = async () => {
+    const res = await processingRoute();
+    setBestRoute(res);
+    let str: string = '';
+    res.map((data, index) => {
+      str += data + (index !== res.length - 1 ? ' → ' : '');
+    });
+    Alert.alert('최소 환승', str);
   };
 
   return (
     <Container>
-      <Title>{data.startCode}</Title>
-      <Title>{data.endCode}</Title>
-      <ButtonRecord title={'hhh'} onPress={onPressButton} />
+      <TextWrapper>
+        <Title>출발지 : {data.startPoint.title}</Title>
+        <Title>도착지 : {data.endPoint.title}</Title>
+      </TextWrapper>
+      <ButtonRecord title={'최소 환승 출력'} onPress={onPressFunction} />
     </Container>
   );
 };
 
+const TextWrapper = styled.View`
+  margin-bottom: 32px;
+`;
 const Container = styled.View`
   flex: 1;
   justify-content: center;
