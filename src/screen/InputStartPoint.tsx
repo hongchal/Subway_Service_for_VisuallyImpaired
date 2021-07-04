@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import Voice from '@react-native-voice/voice';
 import {useNavigation} from '@react-navigation/native';
@@ -8,7 +8,6 @@ import {useRecoilState} from 'recoil';
 import {subwayLineState} from '../recoilState';
 import {Alert} from 'react-native';
 import Tts from 'react-native-tts';
-import {start} from 'react-native-ble-manager';
 
 export interface dataProps {
   isRecord: boolean;
@@ -115,30 +114,40 @@ export const InputStartPoint = () => {
   };
 
   const showStationInfo = async () => {
+    const stationArr: Array<string> = [];
+
     await axios
       .get(
         `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${startPoint.title}/`,
       )
       .then((res) => {
         setSubwayLine(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
-        console.log(res.data.SearchInfoBySubwayNameService.row[0]);
+        stationArr.push(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
 
         startPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
         console.log(startPoint.code);
         //startPoint.code = res;
       })
-      .catch((e) => Alert.alert('출발지 입력 오류'));
+      .catch((e) => {
+        Alert.alert('출발지 입력 오류');
+        Tts.speak('출발지 입력 오류');
+      });
 
     await axios
       .get(
         `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${endPoint.title}/`,
       )
       .then((res) => {
-        console.log(res.data.SearchInfoBySubwayNameService.row[0]);
+        stationArr.push(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
         endPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
         console.log(endPoint.code);
       })
-      .catch((e) => Alert.alert('목적지 입력 오류'));
+      .catch((e) => {
+        Alert.alert('목적지 입력 오류');
+        Tts.speak('목적지 입력 오류');
+      });
+
+    setSubwayLine(stationArr);
 
     navigation.navigate(STRING.NAVIGATION.SHOW_ROUTE, {
       startPoint: startPoint,
@@ -165,14 +174,16 @@ export const InputStartPoint = () => {
       });
   }, [startPoint.title, endPoint.title]);
 
-  const ttsSet = () => {
-    Tts.setDefaultLanguage('ko-KR');
+  const ttsSet = async () => {
+    await Tts.setDefaultLanguage('ko-KR');
   };
 
   useEffect(() => {
     ttsSet();
 
-    inputStartPoint();
+    setTimeout(() => {
+      inputStartPoint();
+    }, 2000);
   }, []);
 
   useEffect(() => {

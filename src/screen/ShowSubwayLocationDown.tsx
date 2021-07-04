@@ -8,7 +8,7 @@ import SUBWAYDATA from '../assets/subwayData';
 import {useRoute} from '@react-navigation/native';
 
 const ShowSubwayLocationDown = () => {
-  const subwayLine = useRecoilValue(subwayLineState);
+  const subwayLine = useRoute().params.lineNumber;
   const startPoint = useRoute().params.startPoint;
   const endPoint = useRoute().params.endPoint;
   const [endPointIndex, setEndPointIndex] = useState<number>(0);
@@ -20,7 +20,7 @@ const ShowSubwayLocationDown = () => {
   const getSubwayStations = () => {
     const subwayData = SUBWAYDATA.DATA;
     const res = subwayData
-      .filter((data) => data.line_num === '07호선') //todo: subwayLine으로
+      .filter((data) => data.line_num === subwayLine) //todo: subwayLine으로
       .sort(function (a, b) {
         return a.station_cd - b.station_cd;
       });
@@ -34,9 +34,11 @@ const ShowSubwayLocationDown = () => {
     });
   };
   const getSubwayLocation = async () => {
+    const apiSubwayLine = subwayLine.slice(1);
+
     await axios
       .get(
-        'http://swopenAPI.seoul.go.kr/api/subway/725864484a6a77363533536c565973/json/realtimePosition/0/40/7호선/',
+        `http://swopenAPI.seoul.go.kr/api/subway/725864484a6a77363533536c565973/json/realtimePosition/0/40/${apiSubwayLine}/`,
       )
       .then((res) => {
         const dnLineRes = res.data.realtimePositionList.filter(
@@ -72,6 +74,7 @@ const ShowSubwayLocationDown = () => {
       {isLoaded ? (
         <FlatList
           data={subwayStations}
+          keyExtractor={(item) => item.station_nm}
           renderItem={({item, index}) => {
             let isDown = false;
             let downTrainStatus = 1;
@@ -89,7 +92,7 @@ const ShowSubwayLocationDown = () => {
               }
             }
             return (
-              <FlatListSubwayBox key={index}>
+              <FlatListSubwayBox key={item.station_nm}>
                 <DownItem trainStatus={downTrainStatus}>
                   {isDown && (
                     <Text>
@@ -102,7 +105,7 @@ const ShowSubwayLocationDown = () => {
                     </Text>
                   )}
                 </DownItem>
-                <SubwayItem key={index}>
+                <SubwayItem>
                   <Text>{item.station_nm}</Text>
                 </SubwayItem>
               </FlatListSubwayBox>

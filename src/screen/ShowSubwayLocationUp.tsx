@@ -8,7 +8,7 @@ import SUBWAYDATA from '../assets/subwayData';
 import {useRoute} from '@react-navigation/native';
 
 const ShowSubwayLocationUp = () => {
-  const subwayLine = useRecoilValue(subwayLineState);
+  const subwayLine: string = useRoute().params.lineNumber;
   const startPoint = useRoute().params.startPoint;
   const endPoint = useRoute().params.endPoint;
   const [endPointIndex, setEndPointIndex] = useState<number>(0);
@@ -20,7 +20,7 @@ const ShowSubwayLocationUp = () => {
   const getSubwayStations = () => {
     const subwayData = SUBWAYDATA.DATA;
     const res = subwayData
-      .filter((data) => data.line_num === '07호선') //todo: subwayLine으로
+      .filter((data) => data.line_num === subwayLine) //todo: subwayLine으로
       .sort(function (a, b) {
         return b.station_cd - a.station_cd;
       });
@@ -34,9 +34,11 @@ const ShowSubwayLocationUp = () => {
     });
   };
   const getSubwayLocation = async () => {
+    const apiSubwayLine = subwayLine.slice(1);
+
     await axios
       .get(
-        'http://swopenAPI.seoul.go.kr/api/subway/725864484a6a77363533536c565973/json/realtimePosition/0/40/7호선/',
+        `http://swopenAPI.seoul.go.kr/api/subway/725864484a6a77363533536c565973/json/realtimePosition/0/40/${apiSubwayLine}/`,
       )
       .then((res) => {
         const upLineRes = res.data.realtimePositionList.filter(
@@ -72,6 +74,7 @@ const ShowSubwayLocationUp = () => {
       {isLoaded ? (
         <FlatList
           data={subwayStations}
+          keyExtractor={(item) => item.station_nm}
           renderItem={({item, index}) => {
             let isUp = false;
             let upTrainStatus = 1;
@@ -89,7 +92,7 @@ const ShowSubwayLocationUp = () => {
               }
             }
             return (
-              <FlatListSubwayBox>
+              <FlatListSubwayBox key={item.station_nm}>
                 <UpItem trainStatus={upTrainStatus}>
                   {isUp && (
                     <Text>
@@ -102,7 +105,7 @@ const ShowSubwayLocationUp = () => {
                     </Text>
                   )}
                 </UpItem>
-                <SubwayItem key={index}>
+                <SubwayItem>
                   <Text>{item.station_nm}</Text>
                 </SubwayItem>
               </FlatListSubwayBox>

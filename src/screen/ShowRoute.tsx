@@ -3,9 +3,13 @@ import styled from 'styled-components/native';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
 import STATION from '../assets/stationCoordinate';
+import SUBWAYDATA from '../assets/subwayData';
 import {dataProps} from './InputStartPoint';
 import {Alert} from 'react-native';
 import Tts from 'react-native-tts';
+import {useRecoilValue, useSetRecoilState} from 'recoil';
+import {numberOfSubwayLineState, subwayLineState} from '../recoilState';
+import {STRING} from '../assets/string';
 
 enum coordinateIndex {
   Y,
@@ -35,9 +39,14 @@ export const ShowRoute = () => {
   const API_KEY =
     'LxYoKzvAMQN8l6UBprXuyvvvCi9uunUiv9i3fJGwNMcgMoRq%2BTKFCnSpBNlJBKTmhpRT01Q%2F1KntzS%2FkIXTqvA%3D%3D';
 
+  // const setBestRouteState = useSetRecoilState();
+
   const [routes, setRoutes] = useState<Array<any>>([]);
   const [bestRoute, setBestRoute] = useState<Array<string>>([]);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+
+  const stationLine = useRecoilValue(subwayLineState);
+  const stationLineIdx = useRecoilValue(numberOfSubwayLineState);
 
   useEffect(() => {
     getData();
@@ -110,23 +119,56 @@ export const ShowRoute = () => {
 
   const onPressFunction = async () => {
     const res = await processingRoute();
+    const stations: Array<{name: string; code: number}> = [];
     setBestRoute(res);
     let str: string = '';
     res.map((data, index) => {
       str += data + (index !== res.length - 1 ? ' → ' : '');
     });
-    Alert.alert('최소 환승', str);
     Tts.speak('최소 환승역은' + str + '입니다.');
+    res.map((bestRoute) => {
+      stations.push(getStationCodes(bestRoute));
+    });
+    const upOrDown = getUpOrDown(stations);
+    navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION, {
+      screen: STRING.NAVIGATION.SUBWAY_LOCATION_SCREEN,
+      params: {
+        UpDown: upOrDown,
+        startPoint: stations[0].name,
+        endPoint: stations[1].name,
+      },
+    });
+  };
+
+  const getStationCodes = (bestRoute) => {
+    const stationInfo = SUBWAYDATA.DATA;
+    const res = stationInfo.filter(
+      (station) =>
+        station.station_nm.includes(bestRoute) &&
+        station.line_num.includes(stationLine[stationLineIdx]),
+    );
+    if (res.length > 0) {
+      return {code: res[0].station_cd, name: res[0].station_nm};
+    }
+  };
+
+  const getUpOrDown = (stations: Array<{name: string; code: number}>) => {
+    if (parseInt(stations[0].code) < parseInt(stations[1].code)) {
+      return 'down';
+    } else {
+      return 'up';
+    }
   };
 
   return (
-    <Container>
-      <TextWrapper>
-        <Title>출발지 : {data.startPoint.title}</Title>
-        <Title>도착지 : {data.endPoint.title}</Title>
-      </TextWrapper>
-      <ButtonRecord title={'최소 환승 출력'} onPress={onPressFunction} />
-    </Container>
+    <WholeTouchable onPress={onPressFunction}>
+      <Container>
+        <TextWrapper>
+          <Title>출발지 : {data.startPoint.title}</Title>
+          <Title>도착지 : {data.endPoint.title}</Title>
+        </TextWrapper>
+      </Container>
+    </WholeTouchable>
   );
 };
 
@@ -148,3 +190,4 @@ const Title = styled.Text`
   font-family: 'Apple SD Gothic Neo';
   font-weight: bold;
 `;
+const WholeTouchable = styled.TouchableWithoutFeedback``;
