@@ -1,10 +1,15 @@
 import {atom} from 'recoil';
 
-export const subwayLineState = atom({
+export const subwayLineState = atom<Array<string>>({
   key: 'subwayLineState',
-  default: '',
+  default: [],
 });
-//todo: 지하철경로 출력시 거쳐가야하는 호선 수를 Array로 넣어야함
+
+export const numberOfSubwayLineState = atom<number>({
+  key: 'numberOfSubwayLineState',
+  default: 0,
+});
+//todo: 장애인이 하차를 입력했을 경우 +1
 
 export const isClientRideState = atom<boolean>({
   key: 'isClientRideState',

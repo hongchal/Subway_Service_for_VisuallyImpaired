@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
 import Voice from '@react-native-voice/voice';
 import {useNavigation} from '@react-navigation/native';
@@ -6,8 +6,10 @@ import {STRING} from '../assets/string';
 import axios from 'axios';
 import {useRecoilState} from 'recoil';
 import {subwayLineState} from '../recoilState';
+import {Alert} from 'react-native';
+import Tts from 'react-native-tts';
 
-interface dataPorps {
+export interface dataProps {
   isRecord: boolean;
   title: string;
   focused: boolean;
@@ -15,19 +17,22 @@ interface dataPorps {
 }
 
 export const InputStartPoint = () => {
-  const [startPoint, setStartPoint] = useState<dataPorps>({
+  const [startPoint, setStartPoint] = useState<dataProps>({
     isRecord: false,
     title: '',
     focused: false,
     code: '',
   });
 
-  const [endPoint, setEndPoint] = useState<dataPorps>({
+  const [endPoint, setEndPoint] = useState<dataProps>({
     isRecord: false,
     title: '',
     focused: false,
     code: '',
   });
+
+  const [isEnteredStart, setIsEnteredStart] = useState<boolean>(false);
+  const [isEnteredEnd, setIsEnteredEnd] = useState<boolean>(false);
 
   const [subwayLine, setSubwayLine] = useRecoilState(subwayLineState);
 
@@ -53,6 +58,11 @@ export const InputStartPoint = () => {
   const _onSpeechEnd = () => {
     console.log('onSpeechEnd');
     Voice.destroy();
+    if (startPoint.isRecord && !endPoint.isRecord) {
+      setIsEnteredStart(true);
+    } else if (startPoint.isRecord && endPoint.isRecord) {
+      setIsEnteredEnd(true);
+    }
   };
   const _onSpeechResultsStart = (event) => {
     console.log('onSpeechResults');
@@ -104,34 +114,44 @@ export const InputStartPoint = () => {
   };
 
   const showStationInfo = async () => {
+    const stationArr: Array<string> = [];
+
     await axios
       .get(
         `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${startPoint.title}/`,
       )
       .then((res) => {
         setSubwayLine(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
-        console.log(res.data.SearchInfoBySubwayNameService.row[0]);
+        stationArr.push(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
 
         startPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
         console.log(startPoint.code);
         //startPoint.code = res;
       })
-      .catch((e) => console.error(e));
+      .catch((e) => {
+        Alert.alert('출발지 입력 오류');
+        Tts.speak('출발지 입력 오류');
+      });
 
     await axios
       .get(
         `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${endPoint.title}/`,
       )
       .then((res) => {
-        console.log(res.data.SearchInfoBySubwayNameService.row[0]);
+        stationArr.push(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
         endPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
         console.log(endPoint.code);
       })
-      .catch((e) => console.error(e));
+      .catch((e) => {
+        Alert.alert('목적지 입력 오류');
+        Tts.speak('목적지 입력 오류');
+      });
+
+    setSubwayLine(stationArr);
 
     navigation.navigate(STRING.NAVIGATION.SHOW_ROUTE, {
-      startCode: startPoint.code,
-      endCode: endPoint.code,
+      startPoint: startPoint,
+      endPoint: endPoint,
     });
   };
 
@@ -149,10 +169,51 @@ export const InputStartPoint = () => {
     startPoint.code != '' &&
       endPoint.code != '' &&
       navigation.navigate(STRING.NAVIGATION.SHOW_ROUTE, {
-        startCode: startPoint.code,
-        endCode: endPoint.code,
+        startCode: startPoint.title,
+        endCode: endPoint.title,
       });
-  }, [startPoint.code, endPoint.code]);
+  }, [startPoint.title, endPoint.title]);
+
+  const ttsSet = async () => {
+    await Tts.setDefaultLanguage('ko-KR');
+  };
+
+  useEffect(() => {
+    ttsSet();
+
+    setTimeout(() => {
+      inputStartPoint();
+    }, 2000);
+  }, []);
+
+  useEffect(() => {
+    if (isEnteredStart) {
+      inputEndPoint();
+    }
+  }, [isEnteredStart]);
+
+  useEffect(() => {
+    if (isEnteredEnd && isEnteredStart) {
+      showStationInfo();
+    }
+  }, [isEnteredEnd, isEnteredStart]);
+
+  const inputStartPoint = async () => {
+    await Tts.speak('출발지를 입력해 주세요.');
+    setTimeout(async () => {
+      startPoint.focused = true;
+      await _onRecordVoiceStartPoint();
+    }, 3000);
+  };
+
+  const inputEndPoint = async () => {
+    await Tts.speak('도착지를 입력해 주세요.');
+    setTimeout(async () => {
+      endPoint.focused = true;
+      await _onRecordVoiceEndPoint();
+    }, 3000);
+  };
+
   return (
     <>
       <Container>
