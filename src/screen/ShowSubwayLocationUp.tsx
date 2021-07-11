@@ -20,10 +20,10 @@ const ShowSubwayLocationUp = () => {
   const isClientRide = useRecoilValue(isClientRideState);
 
   useEffect(() => {
-    if (isClientRide) {
+    if (isClientRide && ridingTrainNo === '') {
       getSubwayNumber();
     }
-  }, [isClientRide]);
+  }, [isClientRide, upLine]);
 
   const getSubwayNumber = () => {
     subwayStations.map((item) => {
@@ -32,8 +32,10 @@ const ShowSubwayLocationUp = () => {
           nowStation.statnNm.includes(item.station_nm) &&
           nowStation.statnNm.includes(startPoint)
         ) {
-          setRidingTrainNo(nowStation.trainNo);
-          console.log('ridingTrainNo', nowStation.trainNo);
+          if (ridingTrainNo.length === 0) {
+            setRidingTrainNo(nowStation.trainNo);
+            console.log('ridingTrainNo', nowStation.trainNo);
+          }
         }
       });
     });

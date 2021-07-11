@@ -114,51 +114,70 @@ export const InputStartPoint = () => {
   };
 
   const showStationInfo = async () => {
-    const stationArr: Array<string> = [];
+    if (startPoint.title.length > 0 && endPoint.title.length > 0) {
+      const stationArr: Array<string> = [];
 
-    await axios
-      .get(
-        `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${startPoint.title}/`,
-      )
-      .then((res) => {
-        setSubwayLine(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
-        stationArr.push(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
+      await axios
+        .get(
+          `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${startPoint.title}/`,
+        )
+        .then((res) => {
+          setSubwayLine(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
+          stationArr.push(
+            res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM,
+          );
 
-        startPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
-        console.log(startPoint.code);
-        //startPoint.code = res;
-      })
-      .catch((e) => {
-        Alert.alert('출발지 입력 오류', '출발지를 다시 확인하세요', [
-          {text: '확인', onPress: () => {}},
-        ]);
-        Tts.speak('출발지 입력 오류. 다시 입력하세요.');
-        return;
+          startPoint.code =
+            res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
+          console.log(startPoint.code);
+          //startPoint.code = res;
+        })
+        .catch((e) => {
+          Alert.alert('출발지 입력 오류', '출발지를 다시 확인하세요', [
+            {text: '확인', onPress: () => {}},
+          ]);
+          Tts.speak('출발지 입력 오류. 다시 입력하세요.');
+          return;
+        });
+
+      await axios
+        .get(
+          `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${endPoint.title}/`,
+        )
+        .then((res) => {
+          stationArr.push(
+            res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM,
+          );
+          endPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
+          console.log(endPoint.code);
+        })
+        .catch((e) => {
+          Alert.alert('목적지 입력 오류', '목적지를 다시 확인하세요', [
+            {text: '확인', onPress: () => {}},
+          ]);
+          Tts.speak('목적지 입력 오류. 다시 입력하세요.');
+          return;
+        });
+
+      setSubwayLine(stationArr);
+
+      navigation.navigate(STRING.NAVIGATION.SHOW_ROUTE, {
+        startPoint: startPoint,
+        endPoint: endPoint,
       });
-
-    await axios
-      .get(
-        `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${endPoint.title}/`,
-      )
-      .then((res) => {
-        stationArr.push(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
-        endPoint.code = res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
-        console.log(endPoint.code);
-      })
-      .catch((e) => {
-        Alert.alert('목적지 입력 오류', '목적지를 다시 확인하세요', [
-          {text: '확인', onPress: () => {}},
-        ]);
-        Tts.speak('목적지 입력 오류');
-        return;
-      });
-
-    setSubwayLine(stationArr);
-
-    navigation.navigate(STRING.NAVIGATION.SHOW_ROUTE, {
-      startPoint: startPoint,
-      endPoint: endPoint,
-    });
+    } else if (startPoint.title.length === 0) {
+      Tts.speak('출발지 입력 오류. 다시 입력하세요.');
+      setTimeout(() => {
+        inputStartPoint();
+        showStationInfo();
+      }, 3000);
+    } else if (endPoint.title.length === 0) {
+      Tts.speak('목적지 입력 오류. 다시 입력하세요.');
+      setTimeout(() => {
+        inputEndPoint();
+        showStationInfo();
+      }, 3000);
+    }
   };
 
   useEffect(() => {
