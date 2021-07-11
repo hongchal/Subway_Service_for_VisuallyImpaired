@@ -24,7 +24,7 @@ const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 const MAX = 8;
 const MINORDEFAULT = 64000;
-const dummyDistance = 1000;
+const dummyDistance = 100;
 
 const requestLocationPermission = async () => {
   try {
@@ -60,13 +60,12 @@ const RangingBeacon = async () => {
   }
 };
 
-const speakClosestDoor = (closestDoor: number) => {
-  // console.log(closestDoor);
-  if (closestDoor === dummyDistance) {
-    Tts.speak('가까운 스크린 도어가 탐지되지 않습니다.');
+const speakClosestDoor = (closestDoor: number, minDistance: number) => {
+  if (minDistance === dummyDistance) {
+    Tts.speak('백 미터 이내에 가까운 스크린 도어가 탐지되지 않습니다.');
   } else {
-    const section = (closestDoor / 4).toFixed();
-    const door = closestDoor % 5;
+    const section = Math.floor(closestDoor / 4) + 1;
+    const door = (closestDoor % 4) + 1;
     const sectionString = section.toString();
     const doorString = door.toString();
     // console.log(sectionString + '-' + doorString);
@@ -76,7 +75,7 @@ const speakClosestDoor = (closestDoor: number) => {
 };
 
 const DetectBeacone: React.FC = () => {
-  let minDistance: number;
+  let minDistance: number = dummyDistance;
   const [nearestDoor, setNearestDoor] = useState<number>(0);
   // const region = { uuid :'iBeacon', identifier : '74278bda-b644-4520-8f0c-720eaf059935'};
   const navigation = useNavigation();
@@ -86,6 +85,7 @@ const DetectBeacone: React.FC = () => {
   const clientResponse = useRef(false);
   const responseTimeCount = useRef(0);
   const setIsClientRide = useSetRecoilState(isClientRideState);
+  const [minDistanceState, setMinDistanceState] = useState<number>(minDistance);
   // const peripherals = new Map();
   // const [list, setList] = useState([]);
   // const [device, setDevice] = useState<any>(null);
@@ -229,11 +229,11 @@ const DetectBeacone: React.FC = () => {
 
         // console.log('kal dis: ',kalamanFilterDistance);
         minDistance = Math.min.apply(null, kalamanFilterDistance);
-        // console.log('min dis: ',minDistance);
+        setMinDistanceState(minDistance);
 
         kalamanFilterDistance.forEach((item, index) => {
           if (item !== undefined) {
-            item === minDistance ? setNearestDoor(index + 1) : null;
+            item === minDistance ? setNearestDoor(index + 1) : dummyDistance;
           }
         });
       } catch (err) {
@@ -272,7 +272,8 @@ const DetectBeacone: React.FC = () => {
           <InfoText>지하철 탑승을 확인해주세요</InfoText>
         </InfoWrapper>
       ) : (
-        <InfoWrapper onPress={() => speakClosestDoor(nearestDoor)}>
+        <InfoWrapper
+          onPress={() => speakClosestDoor(nearestDoor, minDistanceState)}>
           <InfoText>{nearestDoor}</InfoText>
         </InfoWrapper>
       )}
