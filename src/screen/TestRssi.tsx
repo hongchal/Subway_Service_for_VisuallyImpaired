@@ -67,7 +67,7 @@ const TestRssi: React.FC = () => {
 
   const retrieveConnected = () => {
     BleManager.getConnectedPeripherals([]).then((results) => {
-      if (results.length == 0) {
+      if (results.length === 0) {
         console.log('No connected peripherals');
       }
       console.log(results);
@@ -81,6 +81,7 @@ const TestRssi: React.FC = () => {
   };
 
   const handleDiscoverPeripheral = (peripheral) => {
+    console.log(peripheral.name);
     if (!peripheral.name) {
       peripheral.name = 'NO NAME';
     } else if (peripheral.name === 'HMSoft') {
@@ -88,7 +89,7 @@ const TestRssi: React.FC = () => {
       setDevice(peripheral);
       console.log('Got ble peripheral', peripheral);
       // console.log(peripheral.advertising.manufacturerData.bytesRead);
-      testPeripheral(peripheral);
+      // testPeripheral(peripheral);
     }
     peripherals.set(peripheral.id, peripheral);
     setList(Array.from(peripherals.values()));
@@ -116,13 +117,13 @@ const TestRssi: React.FC = () => {
                 (peripheralData) => {
                   console.log('Retrieved peripheral services', peripheralData);
                   // console.log(device.advertising.serviceUUIDs);
-                  BleManager.read(
-                    peripheral.id,
-                    peripheral.advertising.serviceUUIDs[0],
-                    '2a00',
-                  ).then((data) => {
-                    console.log(data);
-                  });
+                  // BleManager.read(
+                  //   peripheral.id,
+                  //   peripheral.advertising.serviceUUIDs[0],
+                  //   '2a00',
+                  // ).then((data) => {
+                  //   console.log(data);
+                  // });
                   BleManager.readRSSI(peripheral.id).then((rssi) => {
                     console.log('Retrieved actual RSSI value', rssi);
                     let p = peripherals.get(peripheral.id);
@@ -134,39 +135,6 @@ const TestRssi: React.FC = () => {
                   });
                 },
               );
-
-              // Test using bleno's pizza example
-              // https://github.com/sandeepmistry/bleno/tree/master/examples/pizza
-              /*
-              BleManager.retrieveServices(peripheral.id).then((peripheralInfo) => {
-                console.log(peripheralInfo);
-                var service = '13333333-3333-3333-3333-333333333337';
-                var bakeCharacteristic = '13333333-3333-3333-3333-333333330003';
-                var crustCharacteristic = '13333333-3333-3333-3333-333333330001';
-                setTimeout(() => {
-                  BleManager.startNotification(peripheral.id, service, bakeCharacteristic).then(() => {
-                    console.log('Started notification on ' + peripheral.id);
-                    setTimeout(() => {
-                      BleManager.write(peripheral.id, service, crustCharacteristic, [0]).then(() => {
-                        console.log('Writed NORMAL crust');
-                        BleManager.write(peripheral.id, service, bakeCharacteristic, [1,95]).then(() => {
-                          console.log('Writed 351 temperature, the pizza should be BAKED');
-
-                          //var PizzaBakeResult = {
-                          //  HALF_BAKED: 0,
-                          //  BAKED:      1,
-                          //  CRISPY:     2,
-                          //  BURNT:      3,
-                          //  ON_FIRE:    4
-                          //};
-                        });
-                      });
-                    }, 500);
-                  }).catch((error) => {
-                    console.log('Notification error', error);
-                  });
-                }, 200);
-              });*/
             }, 900);
           })
           .catch((error) => {
@@ -296,7 +264,9 @@ const TestRssi: React.FC = () => {
                 title="Retrieve connected peripherals"
                 onPress={() => {
                   console.log(device);
-                  // device.disconnect();
+
+                  // retrieveConnected();
+                  testPeripheral(device);
                   if (device !== null) {
                     BleManager.disconnect(device.id);
                   }

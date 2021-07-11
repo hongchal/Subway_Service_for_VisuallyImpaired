@@ -1,20 +1,26 @@
-﻿import React, {useEffect, useState} from 'react';
+﻿import React, {useEffect, useRef, useState} from 'react';
 import {
   DeviceEventEmitter,
   View,
   Text,
   PermissionsAndroid,
+  NativeModules,
+  NativeEventEmitter,
   Button,
+  Platform,
 } from 'react-native';
 import Beacons from 'react-native-beacons-manager';
 //@ts-ignore
 import KalmanFilter from 'kalmanjs';
 import styled from 'styled-components/native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 import {useNavigation} from '@react-navigation/native';
 import Tts from 'react-native-tts';
-import TestRssi from './TestRssi';
-import {STRING} from '../assets/string';
+import {isClientRideState} from '../recoilState';
+
+import BleManager from 'react-native-ble-manager';
+import {useSetRecoilState} from 'recoil';
+const BleManagerModule = NativeModules.BleManager;
+const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
 const MAX = 8;
 const MINORDEFAULT = 64000;
@@ -55,7 +61,7 @@ const RangingBeacon = async () => {
 };
 
 const speakClosestDoor = (closestDoor: number) => {
-  console.log(closestDoor);
+  // console.log(closestDoor);
   if (closestDoor === dummyDistance) {
     Tts.speak('가까운 스크린 도어가 탐지되지 않습니다.');
   } else {
@@ -63,17 +69,132 @@ const speakClosestDoor = (closestDoor: number) => {
     const door = closestDoor % 5;
     const sectionString = section.toString();
     const doorString = door.toString();
-    console.log(sectionString + '-' + doorString);
-    const closestDoorString = closestDoor.toString();
+    // console.log(sectionString + '-' + doorString);
+    // const closestDoorString = closestDoor.toString();
     Tts.speak(sectionString + '다시' + doorString + '가 가장 가깝습니다');
   }
 };
 
-const DetectBeacone = () => {
+const DetectBeacone: React.FC = () => {
   let minDistance: number;
   const [nearestDoor, setNearestDoor] = useState<number>(0);
   // const region = { uuid :'iBeacon', identifier : '74278bda-b644-4520-8f0c-720eaf059935'};
   const navigation = useNavigation();
+  const [isScanning, setIsScanning] = useState(false);
+  const refCount = useRef(0);
+  const [isIntervalEnd, setIsIntervalEnd] = useState<boolean>(false);
+  const clientResponse = useRef(false);
+  const responseTimeCount = useRef(0);
+  const setIsClientRide = useSetRecoilState(isClientRideState);
+  // const peripherals = new Map();
+  // const [list, setList] = useState([]);
+  // const [device, setDevice] = useState<any>(null);
+
+  const startScan = () => {
+    if (!isScanning) {
+      BleManager.scan([], 3, true)
+        .then((results) => {
+          console.log('Scanning...');
+          setIsScanning(true);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+    }
+  };
+
+  const handleDiscoverPeripheral = (peripheral: any) => {
+    if (!peripheral.name) {
+      peripheral.name = 'NO NAME';
+    } else if (peripheral.name === 'HMSoft') {
+      console.log('detect ble');
+      refCount.current++;
+      console.log('..................', refCount.current);
+      // setDevice(peripheral);
+      // console.log('Got ble peripheral', peripheral);
+      // console.log(peripheral.advertising.manufacturerData.bytesRead);
+      // testPeripheral(peripheral);
+    }
+    // peripherals.set(peripheral.id, peripheral);
+    // setList(Array.from(peripherals.values()));
+  };
+
+  const handleStopScan = () => {
+    console.log('Scan is stopped');
+    setIsScanning(false);
+  };
+
+  useEffect(() => {
+    Tts.speak('스크린 도어 정보 기능을 제공합니다.');
+    Tts.speak('스크린 도어 정보를 알고싶다면 화면을 터치해주세요.');
+  }, []);
+
+  useEffect(() => {
+    BleManager.start({showAlert: false});
+
+    bleManagerEmitter.addListener(
+      'BleManagerDiscoverPeripheral',
+      handleDiscoverPeripheral,
+    );
+    bleManagerEmitter.addListener('BleManagerStopScan', handleStopScan);
+
+    return () => {
+      console.log('unmount');
+      bleManagerEmitter.removeListener(
+        'BleManagerDiscoverPeripheral',
+        handleDiscoverPeripheral,
+      );
+      bleManagerEmitter.removeListener('BleManagerStopScan', handleStopScan);
+    };
+  }, []);
+
+  useEffect(() => {
+    console.log('ref:', refCount.current);
+    if (refCount.current === 0) {
+      const isRideSubway = setInterval(() => {
+        if (refCount.current > 5) {
+          console.log('stop');
+          clearInterval(isRideSubway);
+          setIsIntervalEnd(true);
+        } else {
+          startScan();
+        }
+      }, 6000);
+    }
+  }, [refCount.current]);
+
+  useEffect(() => {
+    if (isIntervalEnd) {
+      Tts.speak('지하철 탑승이 인식되었습니다.');
+      Tts.speak('지하철을 탑승하신게 맞다면 화면을 한번 터치해주세요');
+
+      const responseInterval = setInterval(() => {
+        responseTimeCount.current++;
+        console.log(responseTimeCount.current);
+        if (clientResponse.current) {
+          Tts.speak('지하철 탑승을 확인했습니다.');
+          Tts.speak('지하철 하차 두 정거장 전에 알려드립니다.');
+          clearInterval(responseInterval);
+          setIsClientRide(true);
+          navigation.goBack();
+        } else {
+          if (responseTimeCount.current >= 15) {
+            setIsIntervalEnd(false);
+            refCount.current = 0;
+            Tts.speak('장시간 반응이 없어 지하철 탑승 인식을 재실행합니다.');
+            Tts.speak('스크린 도어의 정보를 얻고 싶다면 화면을 터치해주세요.');
+            responseTimeCount.current = 0;
+            clearInterval(responseInterval);
+          }
+        }
+      }, 1000);
+    }
+  }, [isIntervalEnd]);
+
+  const checkClientResponse = async () => {
+    console.log('yes');
+    clientResponse.current = true;
+  };
 
   const ttsSet = () => {
     Tts.setDefaultLanguage('ko-KR');
@@ -144,32 +265,30 @@ const DetectBeacone = () => {
   Beacons.detectIBeacons();
   RangingBeacon();
   return (
-    <>
-      <SafeAreaView>
-        <InfoWrapper>
-          <InfoText>{nearestDoor}</InfoText>
-          <TouchableOpacity onPress={() => speakClosestDoor(nearestDoor)}>
-            <InfoText>get info</InfoText>
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={() =>
-              navigation.navigate(STRING.NAVIGATION.TEST_BLE_DATA)
-            }>
-            <InfoText>go test</InfoText>
-          </TouchableOpacity>
+    <React.Fragment>
+      <SafeAreaView />
+      {isIntervalEnd ? (
+        <InfoWrapper onPress={() => checkClientResponse()}>
+          <InfoText>지하철 탑승을 확인해주세요</InfoText>
         </InfoWrapper>
-      </SafeAreaView>
-    </>
+      ) : (
+        <InfoWrapper onPress={() => speakClosestDoor(nearestDoor)}>
+          <InfoText>{nearestDoor}</InfoText>
+        </InfoWrapper>
+      )}
+    </React.Fragment>
   );
 };
 
 const SafeAreaView = styled.SafeAreaView`
-  flex: 1;
+  flex: 0;
   background-color: white;
 `;
 
-const InfoWrapper = styled.View`
-  height: 100%;
+const InfoWrapper = styled.TouchableOpacity`
+  flex: 1;
+  background-color: white;
+  border-width: 1px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
