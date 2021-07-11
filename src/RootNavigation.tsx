@@ -6,8 +6,30 @@ import {InputStartPoint} from './screen/InputStartPoint';
 import {ShowRoute} from './screen/ShowRoute';
 import DetectBeacone from './screen/DetectBeacone';
 import {STRING} from './assets/string';
-import ShowSubwayLocation from "./screen/ShowSubwayLocation";
 import TestRssi from './screen/TestRssi';
+import ShowSubwayLocationUp from './screen/ShowSubwayLocationUp';
+import ShowSubwayLocationDown from './screen/ShowSubwayLocationDown';
+import ShowSubwayLocation from './screen/ShowSubwayLocation';
+
+const ShowSubwayNavigation = () => {
+  const ShowSubwayStack = createStackNavigator();
+  return (
+    <ShowSubwayStack.Navigator>
+      <ShowSubwayStack.Screen
+        name={STRING.NAVIGATION.SUBWAY_LOCATION_SCREEN}
+        component={ShowSubwayLocation}
+      />
+      <ShowSubwayStack.Screen
+        name={STRING.NAVIGATION.SUBWAY_LOCATION_UP}
+        component={ShowSubwayLocationUp}
+      />
+      <ShowSubwayStack.Screen
+        name={STRING.NAVIGATION.SUBWAY_LOCATION_DOWN}
+        component={ShowSubwayLocationDown}
+      />
+    </ShowSubwayStack.Navigator>
+  );
+};
 
 export const RootNavigation = () => {
   const Stack = createStackNavigator();
@@ -27,7 +49,10 @@ export const RootNavigation = () => {
                 component={InputStartPoint}
                 options={{}}
               />
-                <Tab.Screen name={STRING.NAVIGATION.SUBWAY_LOCATION} component={ShowSubwayLocation} />
+              <Tab.Screen
+                name={STRING.NAVIGATION.SUBWAY_LOCATION}
+                component={ShowSubwayNavigation}
+              />
               <Tab.Screen
                 name={STRING.NAVIGATION.DETECT_BEACONE}
                 component={DetectBeacone}
