@@ -1,21 +1,45 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useRecoilValue} from 'recoil';
-import {subwayLineState} from '../recoilState';
+import {isClientRideState, subwayLineState} from '../recoilState';
 import axios from 'axios';
 import styled from 'styled-components/native';
 import {ActivityIndicator, FlatList, Text, Vibration} from 'react-native';
 import SUBWAYDATA from '../assets/subwayData';
 import {useRoute} from '@react-navigation/native';
+import Tts from 'react-native-tts';
 
 const ShowSubwayLocationUp = () => {
   const subwayLine: string = useRoute().params.lineNumber;
   const startPoint = useRoute().params.startPoint;
   const endPoint = useRoute().params.endPoint;
   const [endPointIndex, setEndPointIndex] = useState<number>(0);
-  const [ridingTrainNo, setRidingTrainNo] = useState<string>('7182');
+  const [ridingTrainNo, setRidingTrainNo] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [upLine, setUpLine] = useState<Array<any>>([]);
   const [subwayStations, setSubwayStations] = useState<Array<any>>([]);
+  const isClientRide = useRecoilValue(isClientRideState);
+
+  useEffect(() => {
+    if (isClientRide && ridingTrainNo === '') {
+      getSubwayNumber();
+    }
+  }, [isClientRide, upLine]);
+
+  const getSubwayNumber = () => {
+    subwayStations.map((item) => {
+      upLine.map((nowStation) => {
+        if (
+          nowStation.statnNm.includes(item.station_nm) &&
+          nowStation.statnNm.includes(startPoint)
+        ) {
+          if (ridingTrainNo.length === 0) {
+            setRidingTrainNo(nowStation.trainNo);
+            console.log('ridingTrainNo', nowStation.trainNo);
+          }
+        }
+      });
+    });
+  };
 
   const getSubwayStations = () => {
     const subwayData = SUBWAYDATA.DATA;
@@ -80,15 +104,22 @@ const ShowSubwayLocationUp = () => {
             let upTrainStatus = 1;
             let upTrainNo = '';
             upLine.map((nowStation, idx) => {
-              if (nowStation.statnNm === item.station_nm) {
+              if (nowStation.statnNm.includes(item.station_nm)) {
                 isUp = true;
                 upTrainStatus = nowStation.trainSttus;
                 upTrainNo = nowStation.trainNo;
               }
             });
-            if (upTrainNo === ridingTrainNo) {
-              if (endPointIndex - index === 0 || endPointIndex - index === 1) {
+            if (ridingTrainNo.length > 0 && upTrainNo === ridingTrainNo) {
+              if (endPointIndex - index < 3 && endPointIndex - index >= 0) {
                 Vibration.vibrate();
+                if (endPointIndex - index === 0) {
+                  Tts.speak(`${endPoint} 도착입니다.`);
+                } else {
+                  Tts.speak(
+                    `${endPoint} 도착 ${endPointIndex - index}역 전입니다.`,
+                  );
+                }
               }
             }
             return (

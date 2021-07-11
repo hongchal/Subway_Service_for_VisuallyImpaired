@@ -8,7 +8,11 @@ import {dataProps} from './InputStartPoint';
 import {Alert} from 'react-native';
 import Tts from 'react-native-tts';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
-import {numberOfSubwayLineState, subwayLineState} from '../recoilState';
+import {
+  numberOfSubwayLineState,
+  subwayLineState,
+  subwayUpOrDownLineState,
+} from '../recoilState';
 import {STRING} from '../assets/string';
 
 enum coordinateIndex {
@@ -38,9 +42,6 @@ export const ShowRoute = () => {
   const route = useRoute();
   const API_KEY =
     'LxYoKzvAMQN8l6UBprXuyvvvCi9uunUiv9i3fJGwNMcgMoRq%2BTKFCnSpBNlJBKTmhpRT01Q%2F1KntzS%2FkIXTqvA%3D%3D';
-
-  // const setBestRouteState = useSetRecoilState();
-
   const [routes, setRoutes] = useState<Array<any>>([]);
   const [bestRoute, setBestRoute] = useState<Array<string>>([]);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
@@ -130,13 +131,11 @@ export const ShowRoute = () => {
       stations.push(getStationCodes(bestRoute));
     });
     const upOrDown = getUpOrDown(stations);
-    navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION, {
-      screen: STRING.NAVIGATION.SUBWAY_LOCATION_SCREEN,
-      params: {
-        UpDown: upOrDown,
-        startPoint: stations[0].name,
-        endPoint: stations[1].name,
-      },
+    console.log(stations);
+    navigation.navigate(STRING.NAVIGATION.DETECT_BEACONE, {
+      UpDown: upOrDown,
+      startPoint: stations[0].name,
+      endPoint: stations[1].name,
     });
   };
 
