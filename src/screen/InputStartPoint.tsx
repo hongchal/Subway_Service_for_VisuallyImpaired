@@ -129,8 +129,11 @@ export const InputStartPoint = () => {
         //startPoint.code = res;
       })
       .catch((e) => {
-        Alert.alert('출발지 입력 오류');
-        Tts.speak('출발지 입력 오류');
+        Alert.alert('출발지 입력 오류', '출발지를 다시 확인하세요', [
+          {text: '확인', onPress: () => {}},
+        ]);
+        Tts.speak('출발지 입력 오류. 다시 입력하세요.');
+        return;
       });
 
     await axios
@@ -143,8 +146,11 @@ export const InputStartPoint = () => {
         console.log(endPoint.code);
       })
       .catch((e) => {
-        Alert.alert('목적지 입력 오류');
+        Alert.alert('목적지 입력 오류', '목적지를 다시 확인하세요', [
+          {text: '확인', onPress: () => {}},
+        ]);
         Tts.speak('목적지 입력 오류');
+        return;
       });
 
     setSubwayLine(stationArr);

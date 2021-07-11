@@ -13,12 +13,13 @@ import Beacons from 'react-native-beacons-manager';
 //@ts-ignore
 import KalmanFilter from 'kalmanjs';
 import styled from 'styled-components/native';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import Tts from 'react-native-tts';
 import {isClientRideState} from '../recoilState';
 
 import BleManager from 'react-native-ble-manager';
 import {useSetRecoilState} from 'recoil';
+import {STRING} from '../assets/string';
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
@@ -89,6 +90,8 @@ const DetectBeacone: React.FC = () => {
   // const peripherals = new Map();
   // const [list, setList] = useState([]);
   // const [device, setDevice] = useState<any>(null);
+
+  const route = useRoute();
 
   const startScan = () => {
     if (!isScanning) {
@@ -176,7 +179,10 @@ const DetectBeacone: React.FC = () => {
           Tts.speak('지하철 하차 두 정거장 전에 알려드립니다.');
           clearInterval(responseInterval);
           setIsClientRide(true);
-          navigation.goBack();
+          navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION, {
+            screen: STRING.NAVIGATION.SUBWAY_LOCATION_SCREEN,
+            params: route.params,
+          });
         } else {
           if (responseTimeCount.current >= 15) {
             setIsIntervalEnd(false);

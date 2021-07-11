@@ -40,8 +40,8 @@ const ShowSubwayLocation = () => {
         onPress={() =>
           navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION_UP, {
             lineNumber: subwayLine[subwayLineIdx],
-            startPoint: '남성',
-            endPoint: '학동',
+            startPoint: route.params.startPoint,
+            endPoint: route.params.endPoint,
           })
         }>
         <ButtonWrapper>
@@ -52,8 +52,8 @@ const ShowSubwayLocation = () => {
         onPress={() =>
           navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION_DOWN, {
             lineNumber: subwayLine[subwayLineIdx],
-            startPoint: '남성',
-            endPoint: '철산',
+            startPoint: route.params.startPoint,
+            endPoint: route.params.endPoint,
           })
         }>
         <ButtonWrapper>
