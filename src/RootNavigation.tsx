@@ -49,14 +49,15 @@ export const RootNavigation = () => {
                 component={InputStartPoint}
                 options={{}}
               />
-              <Tab.Screen
-                name={STRING.NAVIGATION.SUBWAY_LOCATION}
-                component={ShowSubwayNavigation}
-              />
+
               <Tab.Screen
                 name={STRING.NAVIGATION.DETECT_BEACONE}
                 component={DetectBeacone}
                 options={{}}
+              />
+              <Tab.Screen
+                name={STRING.NAVIGATION.SUBWAY_LOCATION}
+                component={ShowSubwayNavigation}
               />
             </Tab.Navigator>
           )}
