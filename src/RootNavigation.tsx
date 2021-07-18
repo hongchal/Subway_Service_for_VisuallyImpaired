@@ -11,6 +11,7 @@ import ShowSubwayLocationUp from './screen/ShowSubwayLocationUp';
 import ShowSubwayLocationDown from './screen/ShowSubwayLocationDown';
 import ShowSubwayLocation from './screen/ShowSubwayLocation';
 import Home from './screen/Home';
+import DetectBeaconWhenQuit from './screen/DetectBeaconWhenQuit';
 
 const ShowSubwayNavigation = () => {
   const ShowSubwayStack = createStackNavigator();
@@ -61,8 +62,15 @@ export const RootNavigation = () => {
           }}
         />
         <Stack.Screen
-          name={STRING.NAVIGATION.DETECT_BEACONE}
+          name={STRING.NAVIGATION.DETECT_BEACON}
           component={DetectBeacone}
+          options={{
+            header: () => null,
+          }}
+        />
+        <Stack.Screen
+          name={STRING.NAVIGATION.DETECT_BEACON_WHEN_QUIT}
+          component={DetectBeaconWhenQuit}
           options={{
             header: () => null,
           }}

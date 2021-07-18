@@ -36,6 +36,7 @@ const Home: React.FC = () => {
     if (route.params) {
       if (route.params.departDestination) {
         //todo:하차하는 곳으로 가슈
+        navigation.navigate(STRING.NAVIGATION.DETECT_BEACON_WHEN_QUIT);
       }
     }
   }, [route.params]);

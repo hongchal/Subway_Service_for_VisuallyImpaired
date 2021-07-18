@@ -23,7 +23,7 @@ import {STRING} from '../assets/string';
 const BleManagerModule = NativeModules.BleManager;
 const bleManagerEmitter = new NativeEventEmitter(BleManagerModule);
 
-const MAX = 8;
+const MAX = 40;
 const MINORDEFAULT = 64000;
 const dummyDistance = 100;
 
@@ -109,7 +109,7 @@ const DetectBeacone: React.FC = () => {
   const handleDiscoverPeripheral = (peripheral: any) => {
     if (!peripheral.name) {
       peripheral.name = 'NO NAME';
-    } else if (peripheral.name === 'HMSoft') {
+    } else if (peripheral.name === 'SAMPLE') {
       console.log('detect ble');
       refCount.current++;
       console.log('..................', refCount.current);
@@ -118,6 +118,7 @@ const DetectBeacone: React.FC = () => {
       // console.log(peripheral.advertising.manufacturerData.bytesRead);
       // testPeripheral(peripheral);
     }
+    // console.log(peripheral.name);
     // peripherals.set(peripheral.id, peripheral);
     // setList(Array.from(peripherals.values()));
   };
@@ -222,12 +223,12 @@ const DetectBeacone: React.FC = () => {
     DeviceEventEmitter.addListener('beaconsDidRange', (data) => {
       try {
         const Beacons = data.beacons;
-        // console.log(Beacons)
+        console.log(Beacons);
         // use Kalman Filter for accuracy
         Beacons.map((beacon: any) => {
           // console.log(beacon.minor, beacon.distance);
           let beaconIndex = beacon.minor - MINORDEFAULT;
-          // console.log(beaconIndex)
+          console.log('beacon index: ', beaconIndex);
           kalamanFilterDistance[beaconIndex] = parseFloat(
             beaconList[beaconIndex].filter(beacon.distance).toFixed(2),
           );
@@ -239,7 +240,7 @@ const DetectBeacone: React.FC = () => {
 
         kalamanFilterDistance.forEach((item, index) => {
           if (item !== undefined) {
-            item === minDistance ? setNearestDoor(index + 1) : dummyDistance;
+            item === minDistance ? setNearestDoor(index) : dummyDistance;
           }
         });
       } catch (err) {
@@ -283,6 +284,13 @@ const DetectBeacone: React.FC = () => {
           <InfoText>{nearestDoor}</InfoText>
         </InfoWrapper>
       )}
+
+      <InfoWrapper
+        onPress={() =>
+          navigation.navigate(STRING.NAVIGATION.DETECT_BEACON_WHEN_QUIT)
+        }>
+        <InfoText>'하차 테스트'</InfoText>
+      </InfoWrapper>
     </React.Fragment>
   );
 };
