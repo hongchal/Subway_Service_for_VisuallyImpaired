@@ -10,6 +10,7 @@ import TestRssi from './screen/TestRssi';
 import ShowSubwayLocationUp from './screen/ShowSubwayLocationUp';
 import ShowSubwayLocationDown from './screen/ShowSubwayLocationDown';
 import ShowSubwayLocation from './screen/ShowSubwayLocation';
+import Home from './screen/Home';
 
 const ShowSubwayNavigation = () => {
   const ShowSubwayStack = createStackNavigator();
@@ -33,38 +34,35 @@ const ShowSubwayNavigation = () => {
 
 export const RootNavigation = () => {
   const Stack = createStackNavigator();
-  const Tab = createBottomTabNavigator();
   return (
     <NavigationContainer>
       <Stack.Navigator>
+        <Stack.Screen name={STRING.NAVIGATION.HOME} component={Home} />
         <Stack.Screen
-          name={' '}
+          name={STRING.NAVIGATION.INPUT_START}
+          component={InputStartPoint}
           options={{
-            headerStyle: {height: 0},
-          }}>
-          {() => (
-            <Tab.Navigator>
-              <Tab.Screen
-                name={STRING.NAVIGATION.INPUT_START}
-                component={InputStartPoint}
-                options={{}}
-              />
+            header: () => null,
+          }}
+        />
 
-              <Tab.Screen
-                name={STRING.NAVIGATION.DETECT_BEACONE}
-                component={DetectBeacone}
-                options={{}}
-              />
-              <Tab.Screen
-                name={STRING.NAVIGATION.SUBWAY_LOCATION}
-                component={ShowSubwayNavigation}
-              />
-            </Tab.Navigator>
-          )}
-        </Stack.Screen>
+        <Stack.Screen
+          name={STRING.NAVIGATION.SUBWAY_LOCATION}
+          component={ShowSubwayNavigation}
+          options={{
+            header: () => null,
+          }}
+        />
         <Stack.Screen
           name={STRING.NAVIGATION.SHOW_ROUTE}
           component={ShowRoute}
+          options={{
+            header: () => null,
+          }}
+        />
+        <Stack.Screen
+          name={STRING.NAVIGATION.DETECT_BEACONE}
+          component={DetectBeacone}
           options={{
             header: () => null,
           }}

@@ -152,10 +152,10 @@ export const InputStartPoint = () => {
           console.log(endPoint.code);
         })
         .catch((e) => {
-          Alert.alert('목적지 입력 오류', '목적지를 다시 확인하세요', [
+          Alert.alert('도착지 입력 오류', '도착지를 다시 확인하세요', [
             {text: '확인', onPress: () => {}},
           ]);
-          Tts.speak('목적지 입력 오류. 다시 입력하세요.');
+          Tts.speak('도착지 입력 오류. 다시 입력하세요.');
           return;
         });
 
@@ -168,14 +168,14 @@ export const InputStartPoint = () => {
     } else if (startPoint.title.length === 0) {
       Tts.speak('출발지 입력 오류. 다시 입력하세요.');
       setTimeout(() => {
+        startPoint.isRecord = false;
         inputStartPoint();
-        showStationInfo();
       }, 3000);
     } else if (endPoint.title.length === 0) {
-      Tts.speak('목적지 입력 오류. 다시 입력하세요.');
+      Tts.speak('도착지 입력 오류. 다시 입력하세요.');
       setTimeout(() => {
+        endPoint.isRecord = false;
         inputEndPoint();
-        showStationInfo();
       }, 3000);
     }
   };
@@ -221,10 +221,10 @@ export const InputStartPoint = () => {
     if (isEnteredEnd && isEnteredStart) {
       showStationInfo();
     }
-  }, [isEnteredEnd, isEnteredStart]);
+  }, [isEnteredEnd, isEnteredStart, endPoint.title, startPoint.title]);
 
   const inputStartPoint = async () => {
-    await Tts.speak('출발지를 입력해 주세요.');
+    await Tts.getInitStatus().then(() => Tts.speak('출발지를 입력해 주세요.'));
     setTimeout(async () => {
       startPoint.focused = true;
       await _onRecordVoiceStartPoint();

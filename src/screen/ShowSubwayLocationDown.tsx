@@ -1,14 +1,20 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {useRecoilValue} from 'recoil';
-import {isClientRideState, subwayLineState} from '../recoilState';
+import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {
+  isClientDepartDestinationState,
+  isClientRideState,
+  subwayLineState,
+} from '../recoilState';
 import axios from 'axios';
 import styled from 'styled-components/native';
 import {ActivityIndicator, FlatList, Text, Vibration} from 'react-native';
 import SUBWAYDATA from '../assets/subwayData';
-import {useRoute} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import Tts from 'react-native-tts';
+import {STRING} from '../assets/string';
 
 const ShowSubwayLocationDown = () => {
+  const navigation = useNavigation();
   const subwayLine = useRoute().params.lineNumber;
   const startPoint = useRoute().params.startPoint;
   const endPoint = useRoute().params.endPoint;
@@ -18,6 +24,9 @@ const ShowSubwayLocationDown = () => {
   const [downLine, setDownLine] = useState<Array<any>>([]);
   const [subwayStations, setSubwayStations] = useState<Array<any>>([]);
   const isClientRide = useRecoilValue(isClientRideState);
+  const [isClientDepart, setIsClientDepart] = useRecoilState(
+    isClientDepartDestinationState,
+  );
 
   useEffect(() => {
     if (isClientRide && ridingTrainNo === '') {
@@ -104,6 +113,13 @@ const ShowSubwayLocationDown = () => {
     console.log(ridingTrainNo);
   }, [ridingTrainNo]);
 
+  useEffect(() => {
+    if (isClientDepart) {
+      Tts.speak(`${endPoint} 도착입니다.`);
+      navigation.navigate(STRING.NAVIGATION.HOME, {departDestination: true});
+    }
+  }, [isClientDepart]);
+
   return (
     <Wrapper>
       {isLoaded ? (
@@ -125,7 +141,7 @@ const ShowSubwayLocationDown = () => {
               if (endPointIndex - index < 3 && endPointIndex - index >= 0) {
                 Vibration.vibrate();
                 if (endPointIndex - index === 0) {
-                  Tts.speak(`${endPoint} 도착입니다.`);
+                  setIsClientDepart(true);
                 } else {
                   Tts.speak(
                     `${endPoint} 도착 ${endPointIndex - index}역 전입니다.`,
