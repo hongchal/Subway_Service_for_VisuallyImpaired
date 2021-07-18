@@ -15,3 +15,8 @@ export const isClientRideState = atom<boolean>({
   key: 'isClientRideState',
   default: false,
 });
+
+export const isClientDepartDestinationState = atom<boolean>({
+  key: 'isClientDepartDestinationState',
+  default: false,
+});

@@ -1,5 +1,6 @@
 export const STRING = {
   NAVIGATION: {
+    HOME: '홈',
     INPUT_START: '출발지 입력',
     SHOW_ROUTE: '길찾기',
     SUBWAY_LOCATION: '지하철 위치',

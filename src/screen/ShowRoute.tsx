@@ -159,6 +159,12 @@ export const ShowRoute = () => {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      console.log('unmounted');
+    };
+  }, []);
+
   return (
     <WholeTouchable onPress={onPressFunction}>
       <Container>

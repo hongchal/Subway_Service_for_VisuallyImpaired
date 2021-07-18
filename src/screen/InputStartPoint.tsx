@@ -169,13 +169,11 @@ export const InputStartPoint = () => {
       Tts.speak('출발지 입력 오류. 다시 입력하세요.');
       setTimeout(() => {
         inputStartPoint();
-        showStationInfo();
       }, 3000);
     } else if (endPoint.title.length === 0) {
       Tts.speak('목적지 입력 오류. 다시 입력하세요.');
       setTimeout(() => {
         inputEndPoint();
-        showStationInfo();
       }, 3000);
     }
   };
@@ -218,13 +216,14 @@ export const InputStartPoint = () => {
   }, [isEnteredStart]);
 
   useEffect(() => {
+    console.log();
     if (isEnteredEnd && isEnteredStart) {
       showStationInfo();
     }
   }, [isEnteredEnd, isEnteredStart]);
 
   const inputStartPoint = async () => {
-    await Tts.speak('출발지를 입력해 주세요.');
+    await Tts.getInitStatus().then(() => Tts.speak('출발지를 입력해 주세요.'));
     setTimeout(async () => {
       startPoint.focused = true;
       await _onRecordVoiceStartPoint();
