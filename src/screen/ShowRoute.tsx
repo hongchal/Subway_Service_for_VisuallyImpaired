@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import styled from 'styled-components/native';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {StackActions, useNavigation, useRoute} from '@react-navigation/native';
 import axios from 'axios';
 import STATION from '../assets/stationCoordinate';
 import SUBWAYDATA from '../assets/subwayData';
@@ -158,12 +158,6 @@ export const ShowRoute = () => {
       return 'up';
     }
   };
-
-  useEffect(() => {
-    return () => {
-      console.log('unmounted');
-    };
-  }, []);
 
   return (
     <WholeTouchable onPress={onPressFunction}>
