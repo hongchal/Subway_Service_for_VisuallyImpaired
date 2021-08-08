@@ -52,14 +52,16 @@ const InputEnd: React.FC<Props> = (props) => {
   const inputEndPoint = async () => {
     const ttsString = '도착지를 입력해 주세요.';
     await Tts.speak(error ? '도착지 입력 오류.' + ttsString : ttsString);
-    const voiceOn = async () => {
-      await Voice.start('ko-KR');
-    };
+  };
+  const voiceOn = async () => {
+    isFocused && (await Voice.start('ko-KR'));
+  };
+  useEffect(() => {
     Tts.addEventListener('tts-finish', voiceOn);
     return () => {
       Tts.removeEventListener('tts-finish', voiceOn);
     };
-  };
+  }, [isFocused]);
 
   const _onSpeechResultsStart = (event: any) => {
     console.log('onEnterEnd', event);
