@@ -19,17 +19,18 @@ const Home: React.FC = () => {
     navigation.navigate(STRING.NAVIGATION.INPUT_START);
   };
   const speakIntro = async () => {
-    const res = await Tts.speak(
+    await Tts.speak(
       '시각 장애인을 위한 지하철 안내 시스템입니다. 준비가 되면 화면을 터치해주세요.',
     );
-    console.log(res);
   };
 
   useEffect(() => {
     ttsSet();
     speakIntro();
     Tts.addEventListener('tts-finish', (event) => setInProgressSpeak(false));
-    return () => {};
+    return () => {
+      Tts.removeEventListener('tts-finish', () => {});
+    };
   }, []);
 
   useEffect(() => {
