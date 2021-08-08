@@ -36,7 +36,7 @@ export const RootNavigation = () => {
   const Stack = createStackNavigator();
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName={STRING.NAVIGATION.INPUT_STATIONS}>
+      <Stack.Navigator>
         <Stack.Screen name={STRING.NAVIGATION.HOME} component={Home} />
         <Stack.Screen
           name={STRING.NAVIGATION.INPUT_STATIONS}

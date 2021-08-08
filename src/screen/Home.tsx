@@ -17,7 +17,7 @@ const Home: React.FC = () => {
   };
 
   const onPressScreen = () => {
-    navigation.navigate(STRING.NAVIGATION.INPUT_START);
+    navigation.navigate(STRING.NAVIGATION.INPUT_STATIONS);
   };
   const speakStartSystem = async () => {
     bluetoothEnableRef.current = true;
