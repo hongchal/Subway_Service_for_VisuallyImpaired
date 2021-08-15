@@ -1,9 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {useRecoilState, useRecoilValue, useSetRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {
   isClientDepartDestinationState,
   isClientRideState,
-  subwayLineState,
 } from '../recoilState';
 import axios from 'axios';
 import styled from 'styled-components/native';
@@ -40,15 +39,13 @@ const ShowSubwayLocationDown = () => {
   const getSubwayNumber = () => {
     subwayStations.map((item) => {
       downLine.map((nowStation) => {
-        console.log('now', nowStation.statnNm);
+        // console.log('now', nowStation.statnNm);
         if (
           nowStation.statnNm.includes(item.station_nm) &&
           nowStation.statnNm.includes(startPoint)
         ) {
-          if (ridingTrainNo.length === 0) {
+          if (ridingTrainNo === '') {
             setRidingTrainNo(nowStation.trainNo);
-
-            console.log('ridingTrainNo', nowStation.trainNo);
           }
         }
       });
@@ -58,7 +55,7 @@ const ShowSubwayLocationDown = () => {
   const getSubwayStations = () => {
     const subwayData = SUBWAYDATA.DATA;
     const res = subwayData
-      .filter((data) => data.line_num === subwayLine) //todo: subwayLine으로
+      .filter((data) => data.line_num === subwayLine)
       .sort(function (a, b) {
         return a.station_cd - b.station_cd;
       });
@@ -93,8 +90,10 @@ const ShowSubwayLocationDown = () => {
     await getSubwayStations();
     await getIndexOfEndPoint();
     await getSubwayLocation();
-    await getSubwayNumber();
   };
+  useEffect(() => {
+    subwayStations.length > 0 && downLine.length > 0 && getSubwayNumber();
+  }, [subwayStations, downLine]);
 
   useEffect(() => {
     fetchData();
@@ -109,12 +108,10 @@ const ShowSubwayLocationDown = () => {
         clearInterval(timeRef.current);
         timeRef.current = null;
       }
+      leftOneStationCount.current = 0;
+      leftTwoStationsCount.current = 0;
     };
   }, []);
-
-  useEffect(() => {
-    console.log(ridingTrainNo);
-  }, [ridingTrainNo]);
 
   useEffect(() => {
     if (isClientDepart) {
@@ -141,6 +138,7 @@ const ShowSubwayLocationDown = () => {
               }
             });
             if (ridingTrainNo.length > 0 && downTrainNo === ridingTrainNo) {
+              console.log(ridingTrainNo);
               if (endPointIndex - index < 3 && endPointIndex - index >= 0) {
                 Vibration.vibrate();
                 const leftStations = endPointIndex - index;
@@ -150,12 +148,12 @@ const ShowSubwayLocationDown = () => {
                     break;
                   case 1:
                     leftTwoStationsCount.current < 3 &&
-                      Tts.speak(`${endPoint} 도착 두 개 역 전입니다.`);
+                      Tts.speak(`${endPoint} 도착 한 개 역 전입니다.`);
                     leftTwoStationsCount.current++;
                     break;
                   case 2:
                     leftOneStationCount.current < 3 &&
-                      Tts.speak(`${endPoint} 도착 한 개 역 전입니다.`);
+                      Tts.speak(`${endPoint} 도착 두 개 역 전입니다.`);
                     leftOneStationCount.current++;
                     break;
                 }

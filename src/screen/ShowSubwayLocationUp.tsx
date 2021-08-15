@@ -28,6 +28,9 @@ const ShowSubwayLocationUp = () => {
     isClientDepartDestinationState,
   );
 
+  const leftTwoStationsCount = useRef<number>(0);
+  const leftOneStationCount = useRef<number>(0);
+
   useEffect(() => {
     if (isClientRide && ridingTrainNo === '') {
       getSubwayNumber();
@@ -53,7 +56,7 @@ const ShowSubwayLocationUp = () => {
   const getSubwayStations = () => {
     const subwayData = SUBWAYDATA.DATA;
     const res = subwayData
-      .filter((data) => data.line_num === subwayLine) //todo: subwayLine으로
+      .filter((data) => data.line_num === subwayLine)
       .sort(function (a, b) {
         return b.station_cd - a.station_cd;
       });
@@ -84,10 +87,17 @@ const ShowSubwayLocationUp = () => {
 
   const timeRef = useRef<null | NodeJS.Timeout>(null);
 
+  const fetchData = async () => {
+    await getSubwayStations();
+    await getIndexOfEndPoint();
+    await getSubwayLocation();
+  };
   useEffect(() => {
-    getSubwayStations();
-    getIndexOfEndPoint();
-    getSubwayLocation();
+    subwayStations.length > 0 && upLine.length > 0 && getSubwayNumber();
+  }, [subwayStations, upLine]);
+
+  useEffect(() => {
+    fetchData();
     timeRef.current = setInterval(() => {
       getSubwayLocation();
     }, 10000);
@@ -99,6 +109,8 @@ const ShowSubwayLocationUp = () => {
         clearInterval(timeRef.current);
         timeRef.current = null;
       }
+      leftOneStationCount.current = 0;
+      leftTwoStationsCount.current = 0;
     };
   }, []);
 
@@ -129,13 +141,21 @@ const ShowSubwayLocationUp = () => {
             if (ridingTrainNo.length > 0 && upTrainNo === ridingTrainNo) {
               if (endPointIndex - index < 3 && endPointIndex - index >= 0) {
                 Vibration.vibrate();
-                if (endPointIndex - index === 0) {
-                  Tts.speak(`${endPoint} 도착입니다.`);
-                  setIsClientDepart(true);
-                } else {
-                  Tts.speak(
-                    `${endPoint} 도착 ${endPointIndex - index}역 전입니다.`,
-                  );
+                const leftStations = endPointIndex - index;
+                switch (leftStations) {
+                  case 0:
+                    setIsClientDepart(true);
+                    break;
+                  case 1:
+                    leftTwoStationsCount.current < 3 &&
+                      Tts.speak(`${endPoint} 도착 한 개 역 전입니다.`);
+                    leftTwoStationsCount.current++;
+                    break;
+                  case 2:
+                    leftOneStationCount.current < 3 &&
+                      Tts.speak(`${endPoint} 도착 두 개 역 전입니다.`);
+                    leftOneStationCount.current++;
+                    break;
                 }
               }
             }
