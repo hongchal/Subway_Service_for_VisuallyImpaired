@@ -44,11 +44,9 @@ export const ShowRoute = () => {
     'LxYoKzvAMQN8l6UBprXuyvvvCi9uunUiv9i3fJGwNMcgMoRq%2BTKFCnSpBNlJBKTmhpRT01Q%2F1KntzS%2FkIXTqvA%3D%3D';
   const [routes, setRoutes] = useState<Array<any>>([]);
   const [bestRoute, setBestRoute] = useState<Array<string>>([]);
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   const stationLine = useRecoilValue(subwayLineState);
   const stationLineIdx = useRecoilValue(numberOfSubwayLineState);
-
   useEffect(() => {
     getData();
   }, []);

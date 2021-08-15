@@ -14,10 +14,12 @@ const ShowSubwayLocation = () => {
   const navigation = useNavigation();
 
   const route = useRoute();
+  console.log(route);
 
   useEffect(() => {
     if (route.params) {
       if (route.params.UpDown === 'up') {
+        console.log(subwayLine);
         navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION_UP, {
           lineNumber: subwayLine[subwayLineIdx],
           startPoint: route.params.startPoint,

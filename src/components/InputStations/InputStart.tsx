@@ -87,7 +87,7 @@ const InputStart: React.FC<Props> = (props) => {
   };
 
   const showStationInfo = async (titleText: string) => {
-    if (titleText.length > 0) {
+    if (titleText.length > 1) {
       await axios
         .get(
           `http://openAPI.seoul.go.kr:8088/65476b4d496a773638325a6974724d/json/SearchInfoBySubwayNameService/1/5/${titleText}/`,
@@ -96,7 +96,9 @@ const InputStart: React.FC<Props> = (props) => {
           const subwayCode =
             res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
           setError(false);
-          setSubwayLine(res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM);
+          setSubwayLine([
+            res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM,
+          ]);
           onChangeStartPoint({
             title: titleText,
             code: subwayCode,

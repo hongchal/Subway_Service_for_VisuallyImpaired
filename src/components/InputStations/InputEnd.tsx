@@ -96,10 +96,8 @@ const InputEnd: React.FC<Props> = (props) => {
             res.data.SearchInfoBySubwayNameService.row[0].FR_CODE;
           setError(false);
           setSubwayLine((prev) => [
-            ...new Set(
-              ...prev,
-              res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM,
-            ),
+            ...prev,
+            res.data.SearchInfoBySubwayNameService.row[0].LINE_NUM,
           ]);
           onChangeEndPoint({
             title: titleText,
