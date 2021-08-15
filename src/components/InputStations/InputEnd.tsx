@@ -27,7 +27,7 @@ const InputEnd: React.FC<Props> = (props) => {
   };
 
   const voiceSet = () => {
-    Voice.onSpeechPartialResults = _onSpeechResultsStart;
+    Voice.onSpeechResults = _onSpeechResultsStart;
     Voice.onSpeechError = _onSpeechError;
     Voice.onSpeechEnd = _onSpeechEnd;
     Voice.onSpeechStart = _onSpeechStart;
@@ -64,11 +64,10 @@ const InputEnd: React.FC<Props> = (props) => {
   }, [isFocused]);
 
   const _onSpeechResultsStart = (event: any) => {
-    console.log('onEnterEnd', event);
     const res: string = event.value[0];
     res.trim();
     const titleText = res.replace(' ', '');
-    titleText.length > 0 && showStationInfo(titleText);
+    showStationInfo(titleText);
   };
   const _onSpeechError = () => {
     onError();
