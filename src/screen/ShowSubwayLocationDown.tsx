@@ -28,6 +28,9 @@ const ShowSubwayLocationDown = () => {
     isClientDepartDestinationState,
   );
 
+  const leftTwoStationsCount = useRef<number>(0);
+  const leftOneStationCount = useRef<number>(0);
+
   useEffect(() => {
     if (isClientRide && ridingTrainNo === '') {
       getSubwayNumber();
@@ -140,12 +143,21 @@ const ShowSubwayLocationDown = () => {
             if (ridingTrainNo.length > 0 && downTrainNo === ridingTrainNo) {
               if (endPointIndex - index < 3 && endPointIndex - index >= 0) {
                 Vibration.vibrate();
-                if (endPointIndex - index === 0) {
-                  setIsClientDepart(true);
-                } else {
-                  Tts.speak(
-                    `${endPoint} 도착 ${endPointIndex - index}역 전입니다.`,
-                  );
+                const leftStations = endPointIndex - index;
+                switch (leftStations) {
+                  case 0:
+                    setIsClientDepart(true);
+                    break;
+                  case 1:
+                    leftTwoStationsCount.current < 3 &&
+                      Tts.speak(`${endPoint} 도착 두 개 역 전입니다.`);
+                    leftTwoStationsCount.current++;
+                    break;
+                  case 2:
+                    leftOneStationCount.current < 3 &&
+                      Tts.speak(`${endPoint} 도착 한 개 역 전입니다.`);
+                    leftOneStationCount.current++;
+                    break;
                 }
               }
             }
