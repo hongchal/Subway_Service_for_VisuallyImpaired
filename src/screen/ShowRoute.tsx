@@ -130,13 +130,10 @@ export const ShowRoute = () => {
     });
     const upOrDown = getUpOrDown(stations);
     console.log(stations);
-    navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION, {
-      screen: STRING.NAVIGATION.SUBWAY_LOCATION_SCREEN,
-      params: {
-        UpDown: upOrDown,
-        startPoint: stations[0].name,
-        endPoint: stations[1].name,
-      },
+    navigation.navigate(STRING.NAVIGATION.DETECT_BEACON, {
+      UpDown: upOrDown,
+      startPoint: stations[0].name,
+      endPoint: stations[1].name,
     });
   };
 
