@@ -67,7 +67,11 @@ const InputEnd: React.FC<Props> = (props) => {
     const res: string = event.value[0];
     res.trim();
     const titleText = res.replace(' ', '');
-    showStationInfo(titleText);
+    const deleteStation =
+      titleText[titleText.length - 1] === '역'
+        ? titleText.slice(0, -1)
+        : titleText;
+    showStationInfo(deleteStation);
   };
   const _onSpeechError = () => {
     onError();
