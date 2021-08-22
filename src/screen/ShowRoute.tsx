@@ -9,6 +9,7 @@ import {Alert} from 'react-native';
 import Tts from 'react-native-tts';
 import {useRecoilValue, useSetRecoilState} from 'recoil';
 import {
+  isClientRideState,
   numberOfSubwayLineState,
   subwayLineState,
   subwayUpOrDownLineState,
@@ -44,7 +45,6 @@ export const ShowRoute = () => {
     'LxYoKzvAMQN8l6UBprXuyvvvCi9uunUiv9i3fJGwNMcgMoRq%2BTKFCnSpBNlJBKTmhpRT01Q%2F1KntzS%2FkIXTqvA%3D%3D';
   const [routes, setRoutes] = useState<Array<any>>([]);
   const [bestRoute, setBestRoute] = useState<Array<string>>([]);
-
   const stationLine = useRecoilValue(subwayLineState);
   const stationLineIdx = useRecoilValue(numberOfSubwayLineState);
   useEffect(() => {
@@ -129,7 +129,7 @@ export const ShowRoute = () => {
       stations.push(getStationCodes(bestRoute));
     });
     const upOrDown = getUpOrDown(stations);
-    console.log(stations);
+
     navigation.navigate(STRING.NAVIGATION.DETECT_BEACON, {
       UpDown: upOrDown,
       startPoint: stations[0].name,

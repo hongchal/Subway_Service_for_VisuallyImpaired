@@ -85,7 +85,6 @@ const DetectBeacone: React.FC = () => {
   const [isIntervalEnd, setIsIntervalEnd] = useState<boolean>(false);
   const clientResponse = useRef(false);
   const responseTimeCount = useRef(0);
-  const setIsClientRide = useSetRecoilState(isClientRideState);
   const [minDistanceState, setMinDistanceState] = useState<number>(minDistance);
   // const peripherals = new Map();
   // const [list, setList] = useState([]);
@@ -179,7 +178,6 @@ const DetectBeacone: React.FC = () => {
           Tts.speak('지하철 탑승을 확인했습니다.');
           Tts.speak('지하철 하차 두 정거장 전에 알려드립니다.');
           clearInterval(responseInterval);
-          setIsClientRide(true);
           navigation.navigate(STRING.NAVIGATION.SUBWAY_LOCATION, {
             screen: STRING.NAVIGATION.SUBWAY_LOCATION_SCREEN,
             params: route.params,

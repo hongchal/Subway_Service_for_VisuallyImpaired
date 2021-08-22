@@ -14,7 +14,6 @@ const ShowSubwayLocation = () => {
   const navigation = useNavigation();
 
   const route = useRoute();
-  console.log(route);
 
   useEffect(() => {
     if (route.params) {
