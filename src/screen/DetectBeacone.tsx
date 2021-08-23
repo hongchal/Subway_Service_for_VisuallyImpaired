@@ -108,7 +108,7 @@ const DetectBeacone: React.FC = () => {
   const handleDiscoverPeripheral = (peripheral: any) => {
     if (!peripheral.name) {
       peripheral.name = 'NO NAME';
-    } else if (peripheral.name === 'SAMPLE') {
+    } else if (peripheral.name === 'HMSoft') {
       console.log('detect ble');
       refCount.current++;
       console.log('..................', refCount.current);
@@ -155,7 +155,7 @@ const DetectBeacone: React.FC = () => {
     console.log('ref:', refCount.current);
     if (refCount.current === 0) {
       const isRideSubway = setInterval(() => {
-        if (refCount.current > 5) {
+        if (refCount.current > 3) {
           console.log('stop');
           clearInterval(isRideSubway);
           setIsIntervalEnd(true);
@@ -283,12 +283,12 @@ const DetectBeacone: React.FC = () => {
         </InfoWrapper>
       )}
 
-      <InfoWrapper
-        onPress={() =>
-          navigation.navigate(STRING.NAVIGATION.DETECT_BEACON_WHEN_QUIT)
-        }>
-        <InfoText>'하차 테스트'</InfoText>
-      </InfoWrapper>
+      {/*<InfoWrapper*/}
+      {/*  onPress={() =>*/}
+      {/*    navigation.navigate(STRING.NAVIGATION.DETECT_BEACON_WHEN_QUIT)*/}
+      {/*  }>*/}
+      {/*  <InfoText>'하차 테스트'</InfoText>*/}
+      {/*</InfoWrapper>*/}
     </React.Fragment>
   );
 };
